@@ -101,9 +101,13 @@ export default function ProductItem(props: ProductItemProps) {
         <Button
           onClick={handleBuyNow}
           primary
-          large
-          className="!bg-[#016BD9] !text-white !border-none !rounded-lg !shadow-md"
-          style={{ minHeight: 48 }}
+          className="w-full !bg-[#016BD9] !text-white !border-none !rounded-lg !shadow-md !px-4 !py-2 !text-sm"
+          style={{
+            minHeight: 40,
+            height: 40,
+            lineHeight: "24px",
+            width: "100%",
+          }}
         >
           Mua ngay
         </Button>
