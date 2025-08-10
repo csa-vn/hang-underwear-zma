@@ -25,17 +25,18 @@ export default function ProductItem(props: ProductItemProps) {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation to product detail
     e.stopPropagation();
-    
+
     // Get default options for the product
     const options = getDefaultOptions(props.product);
-    
+
     // Check if item already exists in cart
-    const existingItemIndex = cart.findIndex(item => 
-      item.product.id === props.product.id &&
-      item.options.size === options.size &&
-      item.options.color === options.color
+    const existingItemIndex = cart.findIndex(
+      (item) =>
+        item.product.id === props.product.id &&
+        item.options.size === options.size &&
+        item.options.color === options.color
     );
-    
+
     if (existingItemIndex >= 0) {
       // Update quantity if item already exists
       const updatedCart = [...cart];
@@ -47,11 +48,11 @@ export default function ProductItem(props: ProductItemProps) {
         id: Date.now(), // Simple ID generation
         product: props.product,
         options: options,
-        quantity: 1
+        quantity: 1,
       };
       setCart([...cart, newCartItem]);
     }
-    
+
     // Show order notification
     showOrderNotification(props.product.name);
   };
@@ -81,7 +82,9 @@ export default function ProductItem(props: ProductItemProps) {
               <div className="text-3xs text-subtitle truncate">
                 {props.product.category.name}
               </div>
-              <div className="text-xs h-9 line-clamp-2">{props.product.name}</div>
+              <div className="text-xs h-9 line-clamp-2">
+                {props.product.name}
+              </div>
               <div className="mt-0.5 text-sm font-medium">
                 {formatPrice(props.product.price)}
               </div>
@@ -92,12 +95,15 @@ export default function ProductItem(props: ProductItemProps) {
           </>
         )}
       </TransitionLink>
-      
+
       {/* Buy Now Button */}
       <div className="px-2 pb-2">
         <Button
           onClick={handleBuyNow}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+          primary
+          large
+          className="!bg-[#016BD9] !text-white !border-none !rounded-lg !shadow-md"
+          style={{ minHeight: 48 }}
         >
           Mua ngay
         </Button>
