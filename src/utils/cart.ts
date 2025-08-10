@@ -1,4 +1,4 @@
-import { Product, SelectedOptions } from "types";
+import { Product, SelectedOptions } from "@/types";
 
 export function getDefaultOptions(product: Product): SelectedOptions {
   return {

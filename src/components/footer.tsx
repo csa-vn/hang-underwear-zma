@@ -20,12 +20,13 @@ const NAV_ITEMS = [
     path: "/cart",
     icon: (props) => {
       const cart = useAtomValue(cartState);
+      const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
       return (
         <div className="relative">
-          {cart.length > 0 && (
+          {totalItems > 0 && (
             <div className="absolute top-0 left-[18px] h-4 px-1.5 pt-[1.5px] pb-[0.5px] rounded-full bg-[#FF3333] text-white text-[10px] leading-[14px] font-medium shadow-[0_0_0_2px_white]">
-              {cart.length > 9 ? "9+" : cart.length}
+              {totalItems > 9 ? "9+" : totalItems}
             </div>
           )}
           <CartIcon {...props} />
