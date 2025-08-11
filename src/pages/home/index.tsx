@@ -3,6 +3,7 @@ import Banners from "./banners";
 import SearchBar from "../../components/search-bar";
 import Category from "./category";
 import FlashSales from "./flash-sales";
+import BestSeller from "./best-seller";
 import HorizontalDivider from "@/components/horizontal-divider";
 import CategoryTabs from "@/components/category-tabs";
 
@@ -15,6 +16,14 @@ const HomePage: React.FunctionComponent = () => {
         <SearchBar onClick={() => navigate("/search")} />
         <Banners />
       </div>
+
+      {/* Best Seller section */}
+      <div className="px-4 py-4">
+        <BestSeller />
+      </div>
+
+      {/* Visual separator */}
+      <div className="h-4 bg-gray-100 my-6"></div>
 
       {/* Main content with larger spacing */}
       <div className="bg-white space-y-6 px-4">

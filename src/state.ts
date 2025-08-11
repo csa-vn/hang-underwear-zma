@@ -42,6 +42,13 @@ export const productsState = atom(async (get) => {
 
 export const flashSaleProductsState = atom((get) => get(productsState));
 
+export const bestSellerProductsState = atom(async (get) => {
+  const products = await get(productsState);
+  // Return first 4 products as best sellers for demo
+  // In real app, this would filter by a bestSeller flag or use a separate endpoint
+  return products.slice(0, 4);
+});
+
 export const recommendedProductsState = atom((get) => get(productsState));
 
 export const sizesState = atom(["S", "M", "L", "XL"]);

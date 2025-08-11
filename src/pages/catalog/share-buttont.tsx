@@ -16,7 +16,7 @@ export default function ShareButton(props: { product: Product }) {
 
   return (
     <button
-      className="relative p-4 w-full flex space-x-1 bg-[#016BD9] rounded-lg text-white text-sm font-medium cursor-pointer"
+      className="relative p-4 w-full flex space-x-1 bg-primary rounded-lg text-black text-sm font-medium cursor-pointer"
       onClick={share}
     >
       <div>Chia sẻ ngay cho bạn bè</div>

@@ -8,7 +8,7 @@ const SearchBar = forwardRef<HTMLInputElement, HTMLProps<HTMLInputElement>>(
         <div className="relative w-full">
           <input
             ref={ref}
-            className="w-full h-16 pl-16 pr-4 bg-gray-50 text-xl rounded-2xl outline-none placeholder:text-gray-500 border-2 border-gray-200 focus:border-blue-500 focus:bg-white transition-all"
+            className="w-full h-16 pl-16 pr-4 bg-gray-50 text-xl rounded-2xl outline-none placeholder:text-gray-500 border-2 border-gray-200 focus:border-primary focus:bg-white transition-all"
             placeholder="🔍 Tìm kiếm sản phẩm..."
             style={{ fontSize: "18px" }}
             {...props}

@@ -17,7 +17,7 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseClasses = accessible
-    ? "accessible-button transition-all duration-200 focus:ring-4 focus:ring-blue-200 active:scale-95"
+    ? "accessible-button transition-all duration-200 focus:ring-4 focus:ring-yellow-200 active:scale-95"
     : "text-base font-medium rounded-lg";
 
   const sizeClasses = large
@@ -27,7 +27,7 @@ export default function Button({
     : "px-6 py-3.5 text-lg";
 
   const colorClasses = primary
-    ? "bg-blue-600 text-white hover:bg-blue-700 border-2 border-blue-600"
+    ? "bg-primary text-black hover:bg-yellow-300 border-2 border-primary"
     : "bg-white text-gray-800 hover:bg-gray-50 border-2 border-gray-300";
 
   return (

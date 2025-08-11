@@ -101,7 +101,7 @@ export default function ProductItem(props: ProductItemProps) {
         <Button
           onClick={handleBuyNow}
           primary
-          className="w-full !bg-[#016BD9] !text-white !border-none !rounded-lg !shadow-md !px-4 !py-2 !text-sm"
+          className="w-full !bg-primary !text-black !border-none !rounded-lg !shadow-md !px-4 !py-2 !text-sm !font-semibold"
           style={{
             minHeight: 40,
             height: 40,
