@@ -31,7 +31,10 @@ export default function SleepSportCategories() {
   ];
 
   return (
-    <Section title="Đồ ngủ & Thể thao" viewMoreTo="/category-products/sleep-sport">
+    <Section
+      title="Đồ ngủ & Thể thao"
+      viewMoreTo="/category-products/sleep-sport"
+    >
       <div className="pt-2.5 pb-4 flex space-x-6 overflow-x-auto px-4">
         {sleepSportCategories.map((category) => (
           <TransitionLink
