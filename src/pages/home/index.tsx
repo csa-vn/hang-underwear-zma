@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import Banners from "./banners";
 import SearchBar from "../../components/search-bar";
-import Category from "./category";
-import FlashSales from "./flash-sales";
+import FemaleCategories from "./female-categories";
+import MaleCategories from "./male-categories";
+import ChildrenCategories from "./children-categories";
+import SleepSportCategories from "./sleep-sport-categories";
 import BestSeller from "./best-seller";
 import HorizontalDivider from "@/components/horizontal-divider";
 import CategoryTabs from "@/components/category-tabs";
@@ -25,18 +27,41 @@ const HomePage: React.FunctionComponent = () => {
       {/* Visual separator */}
       <div className="h-4 bg-gray-100 my-6"></div>
 
-      {/* Main content with larger spacing */}
+      {/* Category Tabs */}
       <div className="bg-white space-y-6 px-4">
         <CategoryTabs />
-        <Category />
       </div>
 
       {/* Visual separator */}
       <div className="h-4 bg-gray-100 my-6"></div>
 
-      {/* Flash sales section */}
-      <div className="px-4">
-        <FlashSales />
+      {/* Female Categories section */}
+      <div className="px-4 py-4">
+        <FemaleCategories />
+      </div>
+
+      {/* Visual separator */}
+      <div className="h-4 bg-gray-100 my-6"></div>
+
+      {/* Male Categories section */}
+      <div className="px-4 py-4">
+        <MaleCategories />
+      </div>
+
+      {/* Visual separator */}
+      <div className="h-4 bg-gray-100 my-6"></div>
+
+      {/* Children Categories section */}
+      <div className="px-4 py-4">
+        <ChildrenCategories />
+      </div>
+
+      {/* Visual separator */}
+      <div className="h-4 bg-gray-100 my-6"></div>
+
+      {/* Sleep & Sport Categories section */}
+      <div className="px-4 py-4">
+        <SleepSportCategories />
       </div>
     </div>
   );
