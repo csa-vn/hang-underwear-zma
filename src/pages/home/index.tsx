@@ -7,7 +7,6 @@ import ChildrenCategories from "./children-categories";
 import SleepSportCategories from "./sleep-sport-categories";
 import BestSeller from "./best-seller";
 import HorizontalDivider from "@/components/horizontal-divider";
-import CategoryTabs from "@/components/category-tabs";
 
 const HomePage: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -27,14 +26,6 @@ const HomePage: React.FunctionComponent = () => {
       {/* Visual separator */}
       <div className="h-4 bg-gray-100 my-6"></div>
 
-      {/* Category Tabs */}
-      <div className="bg-white space-y-6 px-4">
-        <CategoryTabs />
-      </div>
-
-      {/* Visual separator */}
-      <div className="h-4 bg-gray-100 my-6"></div>
-
       {/* Female Categories section */}
       <div className="px-4 py-4">
         <FemaleCategories />
@@ -43,17 +34,17 @@ const HomePage: React.FunctionComponent = () => {
       {/* Visual separator */}
       <div className="h-4 bg-gray-100 my-6"></div>
 
-      {/* Male Categories section */}
+      {/* Children Categories section */}
       <div className="px-4 py-4">
-        <MaleCategories />
+        <ChildrenCategories />
       </div>
 
       {/* Visual separator */}
       <div className="h-4 bg-gray-100 my-6"></div>
 
-      {/* Children Categories section */}
+      {/* Male Categories section */}
       <div className="px-4 py-4">
-        <ChildrenCategories />
+        <MaleCategories />
       </div>
 
       {/* Visual separator */}
