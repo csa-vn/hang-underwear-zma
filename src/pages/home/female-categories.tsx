@@ -16,7 +16,7 @@ export default function FemaleCategories() {
   );
 
   return (
-    <Section title="Danh mục Nữ" viewMoreTo="/categories/female">
+    <Section title="Danh mục Nữ" viewMoreTo="/category-products/female">
       <div className="pt-2.5 pb-4 flex space-x-6 overflow-x-auto px-4">
         {femaleCategories.map((category) => (
           <TransitionLink

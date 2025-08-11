@@ -1,8 +1,17 @@
-✔ Make things simple in the ZMA @done(25-08-10 10:35)
-✔ When a user clicks to buy a product it will show an announcement from Zalo to the user that “You ordered this product”. @done(25-08-11 09:56)
-☐ About the UI first show the banner slide show the sale products and then show all of the products
-☐ trang đầu để là best seller đồ lót nữ áo lá là sản phẩm chính
-☐ phần dưới chia ra các đồ của phụ nữ ở dưới đồ của trẻ em sau đó nam
-☐ ở dưới nữa là đồ ngủ và đổ thể thao
-☐ pop-up để combo sales
-✔ màu chủ đạo là vàng đen trắng @done(25-08-11 09:56)
+UI:
+    ✔ Make things simple in the ZMA @done(25-08-10 10:35)
+    ✔ When a user clicks to buy a product it will show an announcement from Zalo to the user that “You ordered this product”. @done(25-08-11 09:56)
+    ☐ About the UI first show the banner slide show the sale products and then show all of the products
+    ☐ trang đầu để là best seller đồ lót nữ áo lá là sản phẩm chính
+    ☐ phần dưới chia ra các đồ của phụ nữ ở dưới đồ của trẻ em sau đó nam
+    ☐ ở dưới nữa là đồ ngủ và đổ thể thao
+    ☐ pop-up để combo sales
+    ✔ màu chủ đạo là vàng đen trắng @done(25-08-11 09:56)
+UI with DB:
+    ☐ Show the categories of products in the home page
+    ☐ Show the products in the home page
+    ☐ Show the best seller products in the home page
+    ☐ Show the flash sales products in the home page
+    ☐ Show the banners in the home page
+    ☐ Show the search bar in the home page
+    ☐ Show the category tabs in the home page

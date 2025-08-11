@@ -8,6 +8,7 @@ import ProfilePage from "@/pages/profile";
 import SearchPage from "@/pages/search";
 import { createBrowserRouter } from "react-router-dom";
 import { getBasePath } from "@/utils/zma";
+import CategoryProductsPage from "@/pages/category-products";
 
 const router = createBrowserRouter(
   [
@@ -71,6 +72,21 @@ const router = createBrowserRouter(
           element: <SearchPage />,
           handle: {
             title: "Tìm kiếm",
+          },
+        },
+        {
+          path: "/category-products/:category",
+          element: <CategoryProductsPage />,
+          handle: {
+            title: ({ params }) => {
+              const map = {
+                female: "Sản phẩm Nữ",
+                male: "Sản phẩm Nam",
+                children: "Sản phẩm Trẻ em",
+                "sleep-sport": "Đồ ngủ & Thể thao",
+              };
+              return map[params.category] || "Sản phẩm";
+            },
           },
         },
       ],

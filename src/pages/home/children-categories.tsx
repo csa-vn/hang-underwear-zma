@@ -31,7 +31,7 @@ export default function ChildrenCategories() {
   ];
 
   return (
-    <Section title="Danh mục Trẻ em" viewMoreTo="/categories/children">
+    <Section title="Danh mục Trẻ em" viewMoreTo="/category-products/children">
       <div className="pt-2.5 pb-4 flex space-x-6 overflow-x-auto px-4">
         {childrenCategories.map((category) => (
           <TransitionLink
