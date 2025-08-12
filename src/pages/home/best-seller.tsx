@@ -21,7 +21,11 @@ export default function BestSeller() {
         // Map each row to a product object
         const mapped = dataRows.map((row, idx) => {
           const defaultImage = "https://via.placeholder.com/150";
-          const image = row[5] || row[9] || defaultImage;
+          let image = row[5] || row[9] || defaultImage;
+          if (row[0] === "Áo BOYA lưng lớn") {
+            image =
+              "https://drive.google.com/uc?export=view&id=1-h_J8tLJOUJWE2JWClwakyKU5niNS6wx";
+          }
           return {
             id: idx + 1,
             name: row[0],
