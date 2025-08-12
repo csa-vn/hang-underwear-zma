@@ -68,20 +68,28 @@ export default function ProductItem(props: ProductItemProps) {
         {({ isTransitioning }) => (
           <>
             <img
+              loading="lazy"
+              className="aspect-square h-48 w-full rounded-lg object-cover object-center"
               src={props.product.image}
-              className="w-full aspect-square object-cover rounded-t-lg"
-              style={{
-                viewTransitionName:
-                  isTransitioning && selected // only animate the "clicked" product item in related products list
-                    ? `product-image-${props.product.id}`
-                    : undefined,
-              }}
               alt={props.product.name}
+              onLoad={() =>
+                console.log(
+                  `✅ Image loaded successfully: ${props.product.name}`
+                )
+              }
+              onError={(e) => {
+                console.error(
+                  `❌ Image failed to load: ${props.product.name} - ${props.product.image}`
+                );
+                // Only fallback once to prevent infinite loop
+                if (!e.currentTarget.src.includes("data:image")) {
+                  // Use a simple base64 placeholder to prevent further errors
+                  e.currentTarget.src =
+                    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik03NSA0MEM4My4yODQzIDQwIDkwIDQ2LjcxNTcgOTAgNTVWOTVDOTAgMTAzLjI4NCA4My4yODQzIDExMCA3NSAxMTBDNjYuNzE1NyAxMTAgNjAgMTAzLjI4NCA2MCA5NVY1NUM2MCA0Ni43MTU3IDY2LjcxNTcgNDAgNzUgNDBaIiBmaWxsPSIjOUI5QjlCIi8+CjxwYXRoIGQ9Ik02MCA3NUg5MCIgc3Ryb2tlPSIjOUI5QjlCIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+";
+                }
+              }}
             />
             <div className="py-2">
-              <div className="text-3xs text-subtitle truncate">
-                {props.product.category.name}
-              </div>
               <div className="text-xs h-9 line-clamp-2">
                 {props.product.name}
               </div>
