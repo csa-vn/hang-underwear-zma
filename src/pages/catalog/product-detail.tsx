@@ -1,22 +1,16 @@
 import Button from "@/components/button";
 import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtomValue } from "jotai";
-import {
-  unstable_useViewTransitionState,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { productState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
 import { useEffect, useRef, useState } from "react";
-import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
-import { Color, Size } from "types";
+import { Color, Size } from "@/types";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -105,10 +99,17 @@ export default function ProductDetailPage() {
             />
           )}
         </div>
-        {product.details && (
+        {/* Product details as paragraph for accessibility */}
+        {product.details && product.details.length > 0 && (
           <>
             <div className="bg-section h-2 w-full"></div>
-            <Collapse items={product.details} />
+            <div className="px-4 py-2 text-base text-gray-800">
+              {product.details.map((detail, idx) => (
+                <p key={idx} style={{ marginBottom: "0.5em" }}>
+                  <strong>{detail.title}:</strong> {detail.content}
+                </p>
+              ))}
+            </div>
           </>
         )}
         <div className="bg-section h-2 w-full"></div>
