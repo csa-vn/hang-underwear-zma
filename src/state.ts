@@ -84,6 +84,8 @@ export const productsState = atom(async () => {
         ? row[10].split(";").map((name) => ({ name, hex: "#FFC7C7" }))
         : [{ name: "Đỏ", hex: "#FFC7C7" }],
       gender: row[16] || "",
+      linkShop: row[13] || "",
+      address: row[14] || "",
     };
   });
 });

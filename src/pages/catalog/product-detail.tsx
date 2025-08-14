@@ -34,8 +34,8 @@ export default function ProductDetailPage() {
   }, [selectedSize, selectedColor]);
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto">
+  <div className="w-full h-full flex flex-col">
+  <div className="flex-1 overflow-y-auto">
         <div className="w-full px-4">
           <div className="py-2">
             <img
@@ -109,6 +109,25 @@ export default function ProductDetailPage() {
                   <strong>{detail.title}:</strong> {detail.content}
                 </p>
               ))}
+              {/* Thêm link shop và địa chỉ */}
+              {product.linkShop && (
+                <div style={{ marginTop: "1em" }}>
+                  <strong>Link shop:</strong>{" "}
+                  <a
+                    href={product.linkShop}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    Tiktok
+                  </a>
+                </div>
+              )}
+              {product.address && (
+                <div style={{ marginTop: "0.5em" }}>
+                  <strong>Địa chỉ:</strong> {product.address}
+                </div>
+              )}
             </div>
           </>
         )}
