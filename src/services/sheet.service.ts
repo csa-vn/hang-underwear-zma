@@ -1,5 +1,5 @@
 const SHEET_ID = "1XSwP-zDZfel_fMKMLlI8eq8oqoEP7Tep2MInPTnWERc";
-const SHEET_NAME = "Sheet1"; // Change if your tab name is different
+const SHEET_NAME = "Sản Phẩm"; // Change if your tab name is different
 const API_KEY =
   import.meta.env.VITE_GOOGLE_SHEET_API || import.meta.env.GOOGLE_SHEET_API;
 
