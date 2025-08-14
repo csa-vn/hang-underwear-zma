@@ -34,8 +34,8 @@ export default function ProductDetailPage() {
   }, [selectedSize, selectedColor]);
 
   return (
-  <div className="w-full h-full flex flex-col">
-  <div className="flex-1 overflow-y-auto">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex-1 overflow-y-auto">
         <div className="w-full px-4">
           <div className="py-2">
             <img
@@ -60,44 +60,7 @@ export default function ProductDetailPage() {
           <div className="py-2">
             <ShareButton product={product} />
           </div>
-          {product.colors && (
-            <VariantPicker
-              title="Color"
-              variants={product.colors}
-              value={selectedColor}
-              onChange={(color) => setSelectedColor(color)}
-              renderVariant={(variant, selected) => (
-                <div
-                  className={"w-full h-full rounded-full ".concat(
-                    selected ? "border-2 border-primary p-0.5" : ""
-                  )}
-                >
-                  <div
-                    className="w-full h-full rounded-full"
-                    style={{ backgroundColor: variant?.hex }}
-                  />
-                </div>
-              )}
-            />
-          )}
-          <HorizontalDivider />
-          {product.sizes && (
-            <VariantPicker
-              title="Size"
-              variants={product.sizes}
-              value={selectedSize}
-              onChange={(size) => setSelectedSize(size)}
-              renderVariant={(variant, selected) => (
-                <div
-                  className={"w-full h-full flex justify-center items-center ".concat(
-                    selected ? "bg-primary text-white" : ""
-                  )}
-                >
-                  <div className="truncate">{variant}</div>
-                </div>
-              )}
-            />
-          )}
+          {/* Đã xóa phần chọn Color và Size */}
         </div>
         {/* Product details as paragraph for accessibility */}
         {product.details && product.details.length > 0 && (
