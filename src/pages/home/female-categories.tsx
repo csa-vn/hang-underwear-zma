@@ -1,12 +1,14 @@
 import Section from "@/components/section";
 import TransitionLink from "@/components/transition-link";
 import { useAtomValue } from "jotai";
-import { categoriesState } from "@/state";
+import { categoriesState, productsState } from "@/state";
+import { useEffect, useState } from "react";
+import ProductGrid from "@/components/product-grid";
 
 export default function FemaleCategories() {
   const categories = useAtomValue(categoriesState);
-
-  // Filter for female categories based on available data
+  const allProducts = useAtomValue(productsState);
+  // Lọc các sản phẩm thuộc danh mục nữ
   const femaleCategories = categories.filter(
     (category) =>
       category.name.includes("Đầm") ||
@@ -15,26 +17,18 @@ export default function FemaleCategories() {
       category.name.includes("Túi xách")
   );
 
+  // Lọc sản phẩm nữ theo đúng id danh mục nữ
+  const femaleCategoryIds = femaleCategories.map((cat) => cat.id);
+  const femaleProducts = allProducts.filter((product) =>
+    femaleCategoryIds.includes(product.category.id)
+  );
+
+  // Giới hạn số lượng sản phẩm hiển thị (ví dụ: 4 sản phẩm)
+  const topFemaleProducts = femaleProducts.slice(0, 4);
+
   return (
     <Section title="Danh mục Nữ" viewMoreTo="/category-products/female">
-      <div className="pt-2.5 pb-4 flex space-x-6 overflow-x-auto px-4">
-        {femaleCategories.map((category) => (
-          <TransitionLink
-            key={category.id}
-            className="flex flex-col items-center space-y-2 flex-none basis-[70px] overflow-hidden cursor-pointer"
-            to={`/category/${category.id}`}
-          >
-            <img
-              src={category.image}
-              className="w-[70px] h-[70px] object-cover rounded-full border-[0.5px] border-black/15"
-              alt={category.name}
-            />
-            <div className="text-center text-sm w-full line-clamp-2 text-subtitle">
-              {category.name}
-            </div>
-          </TransitionLink>
-        ))}
-      </div>
+      <ProductGrid products={topFemaleProducts} />
     </Section>
   );
 }
