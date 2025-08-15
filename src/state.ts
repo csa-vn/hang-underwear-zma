@@ -173,3 +173,19 @@ export const searchResultState = atom(async (get) => {
     product.name.toLowerCase().includes(keyword.toLowerCase())
   );
 });
+
+// UI Mode states for elderly-friendly interface
+export type UIMode = "simple" | "normal" | null;
+
+export const uiModeState = atom<UIMode>(
+  localStorage.getItem("ui-mode") as UIMode
+);
+
+export const setUIModeState = atom(null, (get, set, mode: UIMode) => {
+  set(uiModeState, mode);
+  if (mode) {
+    localStorage.setItem("ui-mode", mode);
+  } else {
+    localStorage.removeItem("ui-mode");
+  }
+});

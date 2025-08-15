@@ -1,13 +1,70 @@
 import { Outlet } from "react-router-dom";
 import Header from "./header";
 import Footer from "./footer";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { PageSkeleton } from "./skeleton";
 import { Toaster } from "react-hot-toast";
 import { ScrollRestoration } from "./scroll-restoration";
 import { OrderNotificationProvider } from "./order-notification-provider";
+import UIModeModal from "./ui-mode-selector";
+import SimpleProductList from "./simple-product-list";
+import { useAtomValue } from "jotai";
+import { uiModeState, UIMode } from "@/state";
 
 export default function Layout() {
+  const currentUIMode = useAtomValue(uiModeState);
+  const [showModeSelector, setShowModeSelector] = useState(false);
+
+  useEffect(() => {
+    // Show mode selector if no preference is set
+    if (currentUIMode === null) {
+      setShowModeSelector(true);
+    }
+  }, [currentUIMode]);
+
+  const handleModeSelect = (mode: UIMode) => {
+    setShowModeSelector(false);
+  };
+
+  // Apply simple mode styles
+  const isSimpleMode = currentUIMode === "simple";
+
+  // If simple mode, show only the simple product list
+  if (isSimpleMode) {
+    return (
+      <OrderNotificationProvider>
+        <div className="w-screen h-screen flex flex-col bg-white">
+          {/* Simple header with mode switcher */}
+          <div className="bg-white shadow-sm p-4 flex justify-end items-center border-b-2 border-yellow-400">
+            <button
+              onClick={() => setShowModeSelector(true)}
+              className="bg-yellow-400 text-black px-3 py-2 rounded-lg text-sm font-bold border-2 border-black"
+            >
+              Đổi chế độ
+            </button>
+          </div>
+
+          {/* Simple content */}
+          <div className="flex-1 overflow-y-auto">
+            <SimpleProductList />
+          </div>
+
+          <Toaster
+            containerClassName="toast-container"
+            containerStyle={{
+              top: "calc(50% - 24px)",
+            }}
+          />
+          <ScrollRestoration />
+
+          {/* UI Mode Selector Modal */}
+          <UIModeModal isOpen={showModeSelector} onSelect={handleModeSelect} />
+        </div>
+      </OrderNotificationProvider>
+    );
+  }
+
+  // Normal mode layout
   return (
     <OrderNotificationProvider>
       <div className="w-screen h-screen flex flex-col bg-background text-foreground">
@@ -25,6 +82,9 @@ export default function Layout() {
           }}
         />
         <ScrollRestoration />
+
+        {/* UI Mode Selector Modal */}
+        <UIModeModal isOpen={showModeSelector} onSelect={handleModeSelect} />
       </div>
     </OrderNotificationProvider>
   );
