@@ -31,16 +31,14 @@ export default function CategoryProductsPage() {
           // Use a safe base64 placeholder image to prevent infinite loading loops
           const defaultImage =
             "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik03NSA0MEM4My4yODQzIDQwIDkwIDQ2LjcxNTcgOTAgNTVWOTVDOTAgMTAzLjI4NCA4My4yODQzIDExMCA3NSAxMTBDNjYuNzE1NyAxMTAgNjAgMTAzLjI4NCA2MCA5NVY1NUM2MCA0Ni43MTU3IDY2LjcxNTcgNDAgNzUgNDBaIiBmaWxsPSIjOUI5QjlCIi8+CjxwYXRoIGQ9Ik02MCA3NUg5MCIgc3Ryb2tlPSIjOUI5QjlCIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+";
-          // Column 17 is "Ảnh Sản Phẩm" based on header order
-          let image = row[17] || defaultImage;
+          // Map to new CSV layout: image at index 8
+          let image = row[8] || defaultImage;
 
-          // Convert Google Drive share links to direct links if needed
           if (image && image.includes("drive.google.com")) {
             const fileIdMatch =
               image.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
               image.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (fileIdMatch) {
-              // Try different Google Drive image formats
               image = `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
             }
           }
@@ -52,10 +50,10 @@ export default function CategoryProductsPage() {
             price: Number(row[3]) || 0,
             category: {
               id: idx + 1,
-              name: row[8] || "",
-              image: row[9] || defaultImage,
+              name: row[5] || "",
+              image: defaultImage,
             },
-            gender: row[16] || "",
+            gender: row[7] || "",
           };
         });
         setProducts(mapped);
@@ -72,7 +70,6 @@ export default function CategoryProductsPage() {
   if (category === "children") {
     filteredProducts = products.filter((p) => p.gender === "Trẻ em");
   }
-  // You can add more filters for other categories as needed
 
   const title = categoryMap[category ?? ""] || "Sản phẩm";
 

@@ -26,13 +26,14 @@ export default function BestSeller() {
         const mapped = dataRows.map((row, idx) => {
           const defaultImage =
             "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik03NSA0MEM4My4yODQzIDQwIDkwIDQ2LjcxNTcgOTAgNTVWOTVDOTAgMTAzLjI4NCA4My4yODQzIDExMCA3NSAxMTBDNjYuNzE1NyAxMTAgNjAgMTAzLjI4NCA2MCA5NVY1NUM2MCA0Ni43MTU3IDY2LjcxNTcgNDAgNzUgNDBaIiBmaWxsPSIjOUI5QjlCIi8+CjxwYXRoIGQ9Ik02MCA3NUg5MCIgc3Ryb2tlPSIjOUI5QjlCIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+";
-          let image = row[17] || defaultImage;
+          // Use corrected image column 8 (Ảnh Sản Phẩm)
+          let image = row[8] || defaultImage;
           if (image && image.includes("drive.google.com")) {
             const fileIdMatch =
               image.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
               image.match(/\/d\/([a-zA-Z0-9_-]+)/);
             if (fileIdMatch) {
-              image = `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}&sz=w400-h400`;
+              image = `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
             }
           }
           return {
@@ -42,10 +43,10 @@ export default function BestSeller() {
             price: Number(row[3]) || 0,
             category: {
               id: idx + 1,
-              name: row[8] || "",
-              image: row[9] || defaultImage,
+              name: row[5] || "",
+              image: defaultImage,
             },
-            gender: row[16] || "",
+            gender: row[7] || "",
             bestSeller:
               bestSellerColIdx !== -1
                 ? (row[bestSellerColIdx] || "")

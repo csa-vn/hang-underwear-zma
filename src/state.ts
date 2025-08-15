@@ -37,8 +37,22 @@ export const productsState = atom(async () => {
     // Use a safe base64 placeholder image to prevent infinite loading loops
     const defaultImage =
       "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik03NSA0MEM4My4yODQzIDQwIDkwIDQ2LjcxNTcgOTAgNTVWOTVDOTAgMTAzLjI4NCA4My4yODQzIDExMCA3NSAxMTBDNjYuNzE1NyAxMTAgNjAgMTAzLjI4NCA2MCA5NVY1NUM2MCA0Ni43MTU3IDY2LjcxNTcgNDAgNzUgNDBaIiBmaWxsPSIjOUI5QjlCIi8+CjxwYXRoIGQ9Ik02MCA3NUg5MCIgc3Ryb2tlPSIjOUI5QjlCIiBzdHJva2Utd2lkdGg9IjIiLz4KPC9zdmc+";
-    // Column 17 is "Ảnh Sản Phẩm" based on header order
-    let image = row[17] || defaultImage;
+
+    // New CSV layout:
+    // 0: Tên sản phẩm
+    // 1: Mô tả sản phẩm
+    // 2: Combo
+    // 3: Giá
+    // 4: Ưu đãi
+    // 5: Phù hợp với
+    // 6: Liên hệ
+    // 7: Tag (contains gender in current data)
+    // 8: Ảnh Sản Phẩm
+    // 9: Ảnh Mô Tả
+    // 10: Best Seller
+
+    // Map image to new index 8
+    let image = row[8] || defaultImage;
 
     // Convert Google Drive share links to direct links if needed
     if (image && image.includes("drive.google.com")) {
@@ -46,46 +60,43 @@ export const productsState = atom(async () => {
         image.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
         image.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (fileIdMatch) {
-        // Try different Google Drive image formats
         image = `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
       }
     }
-    // Map details if available
+
+    // Map details from the available columns
     let details: Detail[] = [];
     if (row[1]) {
       details.push({ title: "Mô tả", content: row[1] });
     }
-    if (row[7]) {
-      details.push({ title: "Đặc điểm", content: row[7] });
+    if (row[4]) {
+      details.push({ title: "Ưu đãi", content: row[4] });
     }
-    if (row[8]) {
-      details.push({ title: "Size", content: row[8] });
+    if (row[5]) {
+      details.push({ title: "Phù hợp với", content: row[5] });
     }
-    if (row[10]) {
-      details.push({ title: "Màu sắc", content: row[10] });
+    if (row[9]) {
+      details.push({ title: "Ảnh mô tả", content: row[9] });
     }
-    if (row[11]) {
-      details.push({ title: "Cách giặt", content: row[11] });
-    }
+
     return {
       id: idx + 1,
       name: row[0] || "Sản phẩm không tên",
       price: Number(row[3]) || 0,
-      originalPrice: Number(row[4]) || undefined,
+      originalPrice: undefined,
       image,
       category: {
         id: idx + 1,
-        name: row[8] || "Danh mục chưa xác định",
-        image: row[9] || defaultImage,
+        // No explicit category column in new CSV; use 'Phù hợp với' as fallback
+        name: row[5] || "Danh mục chưa xác định",
+        image: defaultImage,
       },
       details,
-      sizes: row[8] ? row[8].split(";") : ["M"],
-      colors: row[10]
-        ? row[10].split(";").map((name) => ({ name, hex: "#FFC7C7" }))
-        : [{ name: "Đỏ", hex: "#FFC7C7" }],
-      gender: row[16] || "",
-      linkShop: row[13] || "",
-      address: row[14] || "",
+      sizes: ["M"],
+      colors: [{ name: "Đỏ", hex: "#FFC7C7" }],
+      gender: row[7] || "",
+      linkShop: "",
+      address: "",
     };
   });
 });
@@ -94,8 +105,6 @@ export const flashSaleProductsState = atom((get) => get(productsState));
 
 export const bestSellerProductsState = atom(async (get) => {
   const products = await get(productsState);
-  // Return first 4 products as best sellers for demo
-  // In real app, this would filter by a bestSeller flag or use a separate endpoint
   return products.slice(0, 4);
 });
 
