@@ -3,40 +3,8 @@ import { productsState, uiModeState, userState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import Button from "@/components/button";
 import toast from "react-hot-toast";
-
-// Hàm gửi OA thật, access token truyền qua header
-async function sendOAMessage(userId: string, productName: string) {
-  const accessToken =
-    "sYRdGtSj3HdR8-T8V2W56TidvajwC6zldcpgI45i55cA98r0HYu_4v1oeGfSBHqal5MC4smdDqQCHADISKW3VT95bcGqHJPpo2EkQJ5P1txiD9Xs6ZGIUzXvbKnzTJLZdY_JQdnNS3lRE-qYFMPXTPyc_4CwJreGtW7R9GvzVIJN2kWK9LzAEi8BopmaN3Lfm3IoCZbY5sUQBez0Ia0mUUmmgLmWN0ne_bIMMmWWA7JiQBHj3WG1UlO4vKakKLHUpIVHUIzqQ2dVV_SW1pnT8i9XoWXdEsbOfrhvNbapUMIgKfDrUWOPNjj8d0Kz4mC7qMs9LnLjEs7iODfj6WPgL-TwYmmQ6cfSp7UD3HG_E3IrIgO34ISvDxDMtZPHB7Gc_2EH02ij2YdBMemuAJDcCj15xMK6EN5iPbIKETDZUZ4760";
-  const apiUrl = "https://openapi.zalo.me/v2.0/oa/message";
-  const message = `Bạn quan tâm sản phẩm ${productName} ?`;
-  console.log("[OA DEBUG] Chuẩn bị gửi OA:", {
-    userId,
-    productName,
-    apiUrl,
-    message,
-  });
-  try {
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        access_token: accessToken,
-      },
-      body: JSON.stringify({
-        recipient: { user_id: userId },
-        message: { text: message },
-      }),
-    });
-    console.log("[OA DEBUG] Đã gửi fetch, status:", res.status);
-    const data = await res.json();
-    console.log("[OA DEBUG] Response data:", data);
-    return data;
-  } catch (err) {
-    console.error("[OA DEBUG] Lỗi gửi OA:", err);
-    throw err;
-  }
-}
+import { useState } from "react";
+import { appendContactRow } from "@/services/sheet.service";
 
 export default function SimpleProductList() {
   const products = useAtomValue(productsState);
@@ -45,27 +13,107 @@ export default function SimpleProductList() {
 
   if (uiMode !== "simple") return null;
 
-  // Handler gửi OA khi tư vấn
-  const handleConsultation = async (productName: string) => {
-    const userId = user?.userInfo?.id;
-    console.log("[OA DEBUG] handleConsultation gọi với:", {
-      userId,
-      productName,
-    });
-    if (!userId) {
-      toast.error("Không lấy được userId Zalo!");
+  // State cho form liên hệ
+  const [showForm, setShowForm] = useState<{ product: string } | null>(null);
+  const [form, setForm] = useState({ name: "", phone: "" });
+  const [loading, setLoading] = useState(false);
+
+  // Handler mở form
+  const handleConsultation = (productName: string) => {
+    setShowForm({ product: productName });
+    setForm({ name: "", phone: "" });
+  };
+
+  // Handler submit form
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.phone.trim()) {
+      toast.error("Vui lòng nhập đầy đủ tên và số điện thoại!");
       return;
     }
-    toast.promise(sendOAMessage(userId, productName), {
-      loading: "Đang gửi tin nhắn OA...",
-      success: "Đã gửi tin nhắn OA cho bạn!",
-      error: (err) =>
-        `Gửi OA thất bại: ${err?.message || "Lỗi không xác định"}`,
-    });
+    setLoading(true);
+    try {
+      await appendContactRow(form.name, form.phone, showForm?.product || "");
+      toast.success("Nhân viên sẽ sớm liên hệ cho bạn!");
+      setShowForm(null);
+    } catch (err: any) {
+      toast.error(
+        "Lưu thông tin thất bại: " + (err?.message || "Lỗi không xác định")
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="simple-product-layout bg-white min-h-screen p-4">
+      {/* Form nhập thông tin khách hàng */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md space-y-6"
+          >
+            <h2 className="text-2xl font-bold text-center mb-2">
+              Đăng ký tư vấn sản phẩm
+            </h2>
+            <div>
+              <label className="block mb-1 font-semibold">Tên khách hàng</label>
+              <input
+                type="text"
+                className="w-full border px-3 py-2 rounded-lg"
+                value={form.name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
+                disabled={loading}
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold">Số điện thoại</label>
+              <input
+                type="tel"
+                className="w-full border px-3 py-2 rounded-lg"
+                value={form.phone}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
+                disabled={loading}
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold">
+                Sản phẩm quan tâm
+              </label>
+              <input
+                type="text"
+                className="w-full border px-3 py-2 rounded-lg bg-gray-100"
+                value={showForm.product}
+                disabled
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="flex-1 bg-black text-yellow-400 font-bold py-3 rounded-lg text-lg"
+                disabled={loading}
+              >
+                {loading ? "Đang gửi..." : "Gửi thông tin"}
+              </button>
+              <button
+                type="button"
+                className="flex-1 bg-gray-300 text-black font-bold py-3 rounded-lg text-lg"
+                onClick={() => setShowForm(null)}
+                disabled={loading}
+              >
+                Hủy
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {/* Danh sách sản phẩm siêu đơn giản */}
       <div className="space-y-6">
         {products.slice(0, 10).map((product) => (
