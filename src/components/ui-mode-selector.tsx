@@ -49,7 +49,9 @@ export function UIModeChangeButton({
   return (
     <Button
       onClick={onModeChange}
-      className="bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs px-2 py-1 h-8"
+      accessible={false}
+      small
+      className="bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm px-2 py-1 h-8 flex items-center justify-center"
     >
       {currentMode === "simple" ? "Đơn giản" : "Bình thường"}
     </Button>
