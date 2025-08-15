@@ -7,6 +7,9 @@ import Button from "./button";
 import { useAtom } from "jotai";
 import { cartState } from "@/state";
 import { getDefaultOptions } from "@/utils/cart";
+import { useAtomValue } from "jotai";
+import { userState } from "@/state";
+import { sendOANotification } from "@/services/oa.service";
 
 export interface ProductItemProps {
   product: Product;
@@ -22,7 +25,8 @@ export default function ProductItem(props: ProductItemProps) {
   const { showOrderNotification } = useOrderNotification();
   const [cart, setCart] = useAtom(cartState);
 
-  const handleBuyNow = (e: React.MouseEvent) => {
+  const user = useAtomValue(userState);
+  const handleBuyNow = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation to product detail
     e.stopPropagation();
 
@@ -55,6 +59,12 @@ export default function ProductItem(props: ProductItemProps) {
 
     // Show order notification
     showOrderNotification(props.product.name);
+
+    // Gửi OA
+    const userId = user?.userInfo?.id;
+    if (userId) {
+      await sendOANotification({ userId, productName: props.product.name });
+    }
   };
 
   return (

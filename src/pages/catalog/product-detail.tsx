@@ -1,6 +1,8 @@
 import Button from "@/components/button";
 import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtomValue } from "jotai";
+import { userState } from "@/state";
+import { sendOANotification } from "@/services/oa.service";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { productState } from "@/state";
 import { formatPrice } from "@/utils/format";
@@ -32,6 +34,7 @@ export default function ProductDetailPage() {
     });
   }, [selectedSize, selectedColor]);
 
+  const user = useAtomValue(userState);
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex-1 overflow-y-auto">
@@ -116,8 +119,13 @@ export default function ProductDetailPage() {
         <Button
           large
           primary
-          onClick={() => {
+          onClick={async () => {
             addToCart(1);
+            // Gửi OA
+            const userId = user?.userInfo?.id;
+            if (userId) {
+              await sendOANotification({ userId, productName: product.name });
+            }
             navigate("/cart");
           }}
         >

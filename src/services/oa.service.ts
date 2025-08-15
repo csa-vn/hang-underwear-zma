@@ -10,9 +10,8 @@ export async function sendOANotification({
 }) {
   // Giả lập gửi thông báo OA (ở đây chỉ log, thực tế sẽ gọi API OA)
   // TODO: Thay thế bằng API thật nếu có
-  console.log(
-    `[OA] Đã gửi thông báo OA cho userId: ${userId} về sản phẩm: ${productName}`
-  );
+  const message = `Bạn quan tâm sản phẩm ${productName} ?`;
+  console.log(`[OA] Gửi cho userId=${userId}: ${message}`);
   // Có thể trả về Promise.resolve() để giả lập async
   return Promise.resolve();
 }
