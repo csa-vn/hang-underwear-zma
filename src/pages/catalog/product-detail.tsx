@@ -4,7 +4,6 @@ import { useAtomValue } from "jotai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { productState } from "@/state";
 import { formatPrice } from "@/utils/format";
-import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
 import { useEffect, useRef, useState } from "react";
 import RelatedProducts from "./related-products";
@@ -48,18 +47,19 @@ export default function ProductDetailPage() {
               }}
             />
           </div>
-          <div className="text-xl font-medium text-primary">
+          {/* Product name: moved above price, bold and larger */}
+          <div className="text-xl font-bold text-gray-900 mt-2">
+            {product.name}
+          </div>
+          <div className="text-2xl font-medium text-primary mt-1">
             {formatPrice(product.price)}
           </div>
           {!!product.originalPrice && (
             <div className="text-2xs text-subtitle line-through">
-              {formatPrice(product.price)}
+              {formatPrice(product.originalPrice)}
             </div>
           )}
-          <div className="text-sm mt-1">{product.name}</div>
-          <div className="py-2">
-            <ShareButton product={product} />
-          </div>
+          {/* Share button removed as requested */}
           {/* Đã xóa phần chọn Color và Size */}
         </div>
         {/* Product details as paragraph for accessibility */}
