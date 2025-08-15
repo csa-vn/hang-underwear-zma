@@ -10,7 +10,10 @@ export interface RelatedProductsProps {
 export default function RelatedProducts(props: RelatedProductsProps) {
   const products = useAtomValue(productsState);
   const otherProducts = useMemo(
-    () => products.filter((product) => product.id !== props.currentProductId),
+    () =>
+      products
+        .filter((product) => product.id !== props.currentProductId)
+        .slice(0, 8),
     [products, props.currentProductId]
   );
 
