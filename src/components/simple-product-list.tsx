@@ -23,11 +23,12 @@ export default function SimpleProductList() {
     // Log userId khi ấn vào sản phẩm
     const userId = user?.userInfo?.id;
     console.log("[ZALO USER ID]", userId);
-    
+
     // Chuyển hướng trực tiếp đến Google Form
-    const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSd4IlAbXOrFp1d7OQxoU75IFxFJr_5yxzZl2MwuKzObhPJdzQ/viewform';
-    window.open(googleFormUrl, '_blank');
-    
+    const googleFormUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSd4IlAbXOrFp1d7OQxoU75IFxFJr_5yxzZl2MwuKzObhPJdzQ/viewform";
+    window.open(googleFormUrl, "_blank");
+
     // Thông báo
     toast.success(`Đã mở form tư vấn cho "${productName}"!`);
   };
@@ -39,17 +40,18 @@ export default function SimpleProductList() {
       toast.error("Vui lòng nhập số điện thoại!");
       return;
     }
-    
+
     // Tạo URL Google Form với dữ liệu pre-filled
-    const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSd4IlAbXOrFp1d7OQxoU75IFxFJr_5yxzZl2MwuKzObhPJdzQ/viewform';
+    const googleFormUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSd4IlAbXOrFp1d7OQxoU75IFxFJr_5yxzZl2MwuKzObhPJdzQ/viewform";
     const prefillParams = new URLSearchParams({
-      'usp': 'pp_url',
+      usp: "pp_url",
       // Sẽ cần entry IDs để pre-fill, tạm thời chuyển hướng trống
     });
-    
+
     // Chuyển hướng đến Google Form
-    window.open(`${googleFormUrl}?${prefillParams.toString()}`, '_blank');
-    
+    window.open(`${googleFormUrl}?${prefillParams.toString()}`, "_blank");
+
     // Thông báo và đóng form
     toast.success("Đã mở form tư vấn! Vui lòng điền thông tin.");
     setShowForm(null);
@@ -73,7 +75,9 @@ export default function SimpleProductList() {
                 type="tel"
                 className="w-full border px-3 py-2 rounded-lg"
                 value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
                 disabled={loading}
                 required
               />
