@@ -1,12 +1,12 @@
 Fix:
-    ☐ remove share button
+    ✔ remove share button @done(25-08-16 21:56)
     ✔ remove tiktok link @done(25-08-15 10:26)
     ✔ change 2 buttons into some sort of "tư vấn" for elderly @done(25-08-15 19:00)
     ✔ for 45 below allow to use cart @done(25-08-15 19:00)
     ✔ đổi logo của shop (đã lưu ở trong src) @done(25-08-16 20:09)
     ☐ Sau khi ấn thì lưu thông tin khách (Số điện thoại) phẩm khách đã ấn vào google sheet
     ☐ Làm thông báo sẽ có người nhắn tin liên hệ
-    ☐ chế độ bình thường sau khi ấn mua ngay thì điền form sđt để được liên hệ
-    ☐ Bỏ mô tả trong simple mode
-    ☐ form điền thông tin tư vấn simple mode chỉ để mỗi sđt
+    ✔ chế độ bình thường sau khi ấn mua ngay thì điền form sđt để được liên hệ @done(25-08-16 21:55)
+    ✔ Bỏ mô tả trong simple mode @done(25-08-16 21:55)
+    ✔ form điền thông tin tư vấn simple mode chỉ để mỗi sđt @done(25-08-16 21:55)
     ☐ tương tác được với hình ảnh zoom-in, zoom-out

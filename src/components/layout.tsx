@@ -44,7 +44,9 @@ export default function Layout() {
 
           {/* Simple content */}
           <div className="flex-1 overflow-y-auto">
-            <SimpleProductList />
+            <Suspense fallback={<PageSkeleton />}>
+              <SimpleProductList />
+            </Suspense>
           </div>
 
           <Toaster
