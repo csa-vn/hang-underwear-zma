@@ -1,3 +1,4 @@
+import ImageZoomViewer from "@/components/image-zoom-viewer";
 import { useAtomValue } from "jotai";
 import { productsState, uiModeState, userState } from "@/state";
 import { formatPrice } from "@/utils/format";
@@ -106,13 +107,15 @@ export default function SimpleProductList() {
       <div className="space-y-6">
         {products.slice(0, 10).map((product) => (
           <div key={product.id} className="product-card">
-            {/* Ảnh sản phẩm - to và rõ ràng */}
+            {/* Ảnh sản phẩm - to và rõ ràng với zoom */}
             <div className="text-center mb-6">
-              <img
+              <ImageZoomViewer
                 src={product.image}
                 alt={product.name}
                 className="w-full max-w-xs mx-auto h-80 object-cover"
-                style={{ aspectRatio: "1/1" }}
+                onClick={() => {
+                  console.log(`🔍 Zoom image: ${product.name}`);
+                }}
               />
             </div>
 
