@@ -20,6 +20,9 @@ export default function SimpleProductList() {
 
   // Handler mở form
   const handleConsultation = (productName: string) => {
+    // Log userId khi ấn vào sản phẩm
+    const userId = user?.userInfo?.id;
+    console.log("[ZALO USER ID]", userId);
     setShowForm({ product: productName });
     setForm({ name: "", phone: "" });
   };

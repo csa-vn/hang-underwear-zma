@@ -1,7 +1,9 @@
 // Đọc dữ liệu từ sheet (dùng cho productsState...)
 export async function fetchSheetData() {
   const SHEET_NAME = "Sản Phẩm";
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(
+    SHEET_NAME
+  )}?key=${API_KEY}`;
   const response = await fetch(url);
   if (!response.ok) throw new Error("Failed to fetch sheet data");
   const data = await response.json();
