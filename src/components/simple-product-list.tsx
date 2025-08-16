@@ -15,7 +15,7 @@ export default function SimpleProductList() {
 
   // State cho form liên hệ
   const [showForm, setShowForm] = useState<{ product: string } | null>(null);
-  const [form, setForm] = useState({ name: "", phone: "" });
+  const [form, setForm] = useState({ phone: "" });
   const [loading, setLoading] = useState(false);
 
   // Handler mở form
@@ -24,19 +24,20 @@ export default function SimpleProductList() {
     const userId = user?.userInfo?.id;
     console.log("[ZALO USER ID]", userId);
     setShowForm({ product: productName });
-    setForm({ name: "", phone: "" });
+    setForm({ phone: "" });
   };
 
   // Handler submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.phone.trim()) {
-      toast.error("Vui lòng nhập đầy đủ tên và số điện thoại!");
+    if (!form.phone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại!");
       return;
     }
     setLoading(true);
     try {
-      await appendContactRow(form.name, form.phone, showForm?.product || "");
+      const name = user?.userInfo?.name || "";
+      await appendContactRow(name, form.phone, showForm?.product || "");
       toast.success("Nhân viên sẽ sớm liên hệ cho bạn!");
       setShowForm(null);
     } catch (err: any) {
@@ -61,40 +62,14 @@ export default function SimpleProductList() {
               Đăng ký tư vấn sản phẩm
             </h2>
             <div>
-              <label className="block mb-1 font-semibold">Tên khách hàng</label>
-              <input
-                type="text"
-                className="w-full border px-3 py-2 rounded-lg"
-                value={form.name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, name: e.target.value }))
-                }
-                disabled={loading}
-                required
-              />
-            </div>
-            <div>
               <label className="block mb-1 font-semibold">Số điện thoại</label>
               <input
                 type="tel"
                 className="w-full border px-3 py-2 rounded-lg"
                 value={form.phone}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, phone: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 disabled={loading}
                 required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-semibold">
-                Sản phẩm quan tâm
-              </label>
-              <input
-                type="text"
-                className="w-full border px-3 py-2 rounded-lg bg-gray-100"
-                value={showForm.product}
-                disabled
               />
             </div>
             <div className="flex gap-2">
@@ -143,22 +118,7 @@ export default function SimpleProductList() {
               </span>
             </div>
 
-            {/* Mô tả sản phẩm - ngắn gọn */}
-            <div className="mb-6">
-              {product.details.map(
-                (detail, idx) =>
-                  detail.title === "Mô tả" && (
-                    <div
-                      key={idx}
-                      className="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-300"
-                    >
-                      <p className="text-xl text-black leading-relaxed text-center">
-                        {detail.content}
-                      </p>
-                    </div>
-                  )
-              )}
-            </div>
+            {/* Mô tả sản phẩm bỏ ở chế độ đơn giản */}
 
             {/* Chỉ giữ nút tư vấn ngay */}
             <div className="text-center">
