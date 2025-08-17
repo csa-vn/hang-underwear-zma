@@ -19,43 +19,36 @@ export default function SimpleProductList() {
   const [form, setForm] = useState({ phone: "" });
   const [loading, setLoading] = useState(false);
 
-  // Handler mở Google Form trực tiếp
+  // Handler mở form tư vấn
   const handleConsultation = (productName: string) => {
     // Log userId khi ấn vào sản phẩm
     const userId = user?.userInfo?.id;
     console.log("[ZALO USER ID]", userId);
-
-    // Chuyển hướng trực tiếp đến Google Form
-    const googleFormUrl =
-      "https://docs.google.com/forms/d/e/1FAIpQLSd4IlAbXOrFp1d7OQxoU75IFxFJr_5yxzZl2MwuKzObhPJdzQ/viewform";
-    window.open(googleFormUrl, "_blank");
-
-    // Thông báo
-    toast.success(`Đã mở form tư vấn cho "${productName}"!`);
+    setShowForm({ product: productName });
+    setForm({ phone: "" });
   };
 
-  // Handler submit form - Chuyển hướng đến Google Form
+  // Handler submit form - Gửi lên Google Apps Script
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.phone.trim()) {
       toast.error("Vui lòng nhập số điện thoại!");
       return;
     }
-
-    // Tạo URL Google Form với dữ liệu pre-filled
-    const googleFormUrl =
-      "https://docs.google.com/forms/d/e/1FAIpQLSd4IlAbXOrFp1d7OQxoU75IFxFJr_5yxzZl2MwuKzObhPJdzQ/viewform";
-    const prefillParams = new URLSearchParams({
-      usp: "pp_url",
-      // Sẽ cần entry IDs để pre-fill, tạm thời chuyển hướng trống
-    });
-
-    // Chuyển hướng đến Google Form
-    window.open(`${googleFormUrl}?${prefillParams.toString()}`, "_blank");
-
-    // Thông báo và đóng form
-    toast.success("Đã mở form tư vấn! Vui lòng điền thông tin.");
-    setShowForm(null);
+    
+    setLoading(true);
+    try {
+      const name = user?.userInfo?.name || "";
+      const result = await appendContactRow(name, form.phone, showForm?.product || "");
+      toast.success("Nhân viên sẽ sớm liên hệ cho bạn!");
+      setShowForm(null);
+    } catch (err: any) {
+      toast.error(
+        "Lưu thông tin thất bại: " + (err?.message || "Lỗi không xác định")
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

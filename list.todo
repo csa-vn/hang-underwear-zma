@@ -9,4 +9,4 @@ Fix:
     ✔ chế độ bình thường sau khi ấn mua ngay thì điền form sđt để được liên hệ @done(25-08-16 21:55)
     ✔ Bỏ mô tả trong simple mode @done(25-08-16 21:55)
     ✔ form điền thông tin tư vấn simple mode chỉ để mỗi sđt @done(25-08-16 21:55)
-    ☐ tương tác được với hình ảnh zoom-in, zoom-out
+    ✔ tương tác được với hình ảnh zoom-in, zoom-out @done(25-08-17 11:15)

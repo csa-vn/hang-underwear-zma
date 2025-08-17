@@ -1,3 +1,42 @@
+const SHEET_ID = "1XSwP-zDZfel_fMKMLlI8eq8oqoEP7Tep2MInPTnWERc";
+const API_KEY =
+  import.meta.env.VITE_GOOGLE_SHEET_API || import.meta.env.GOOGLE_SHEET_API;
+
+// Append data to Google Sheet using Google Sheets API
+async function appendToGoogleSheet(phone: string, product: string, timestamp: string): Promise<boolean> {
+  const SHEET_NAME = "Liên hệ khách hàng";
+  const range = `${SHEET_NAME}!A:C`; // Append to columns A, B, C
+  
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+  
+  const body = {
+    values: [[phone, product, timestamp]]
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log("✅ Google Sheets API response:", result);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error("❌ Google Sheets API error:", response.status, errorText);
+      return false;
+    }
+  } catch (error) {
+    console.error("💥 Google Sheets API fetch error:", error);
+    return false;
+  }
+}
+
 // Đọc dữ liệu từ sheet (dùng cho productsState...)
 export async function fetchSheetData() {
   const SHEET_NAME = "Sản Phẩm";
@@ -9,10 +48,6 @@ export async function fetchSheetData() {
   const data = await response.json();
   return data.values; // Array of rows
 }
-
-const SHEET_ID = "1XSwP-zDZfel_fMKMLlI8eq8oqoEP7Tep2MInPTnWERc";
-const API_KEY =
-  import.meta.env.VITE_GOOGLE_SHEET_API || import.meta.env.GOOGLE_SHEET_API;
 
 // Ghi dữ liệu vào sheet (append row) - số điện thoại, sản phẩm và thời gian
 export async function appendContactRow(
@@ -45,44 +80,39 @@ export async function appendContactRow(
   console.log("📋 Copy dòng này vào Google Sheet:");
   console.log(`${phone}\t${product}\t${timestamp}`);
 
+  // Try Google Apps Script webhook (cách đơn giản nhất)
   const WEBHOOK_URL = import.meta.env.VITE_SHEET_WEBHOOK_URL;
-
-  // Debug log để xem URL nào đang được dùng
-  console.log("🔍 WEBHOOK_URL:", WEBHOOK_URL);
-
-  // Try webhook first
   if (WEBHOOK_URL) {
     try {
-      console.log("🚀 Đang thử webhook...");
+      console.log("🚀 Đang thử Google Apps Script...");
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify({
           phone,
           product,
           timestamp,
         }),
-        mode: "cors",
-        credentials: "omit",
+        mode: "no-cors", // Bypass CORS for Google Apps Script
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log("✅ Webhook thành công:", result);
-        return result;
-      } else {
-        console.warn("⚠️ Webhook failed, trying alternative method...");
-      }
+      // With no-cors, we can't read response, so assume success if no error
+      console.log("✅ Google Apps Script request sent successfully!");
+      return {
+        success: true,
+        message: "Thông tin đã được ghi nhận! Nhân viên sẽ liên hệ sớm nhất.",
+      };
     } catch (error: any) {
-      console.warn(
-        "⚠️ Webhook error, trying alternative method:",
-        error.message
-      );
+      console.warn("⚠️ Google Apps Script error:", error.message);
     }
   }
+
+  // Debug log để xem URL nào đang được dùng
+  console.log("🔍 WEBHOOK_URL:", WEBHOOK_URL);
+
+  // Remove old webhook code since we moved it up
 
   // Alternative method: Try Google Forms submission
   try {
