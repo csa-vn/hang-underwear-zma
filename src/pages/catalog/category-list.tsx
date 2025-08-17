@@ -3,11 +3,11 @@ import SearchBar from "@/components/search-bar";
 import TransitionLink from "@/components/transition-link";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { categoriesState } from "@/state";
+import { realCategoriesState } from "@/state";
 
 export default function CategoryListPage() {
   const navigate = useNavigate();
-  const categories = useAtomValue(categoriesState);
+  const categories = useAtomValue(realCategoriesState);
 
   return (
     <>
@@ -20,7 +20,7 @@ export default function CategoryListPage() {
           <TransitionLink
             key={category.id}
             className="flex flex-col items-center space-y-2 overflow-hidden cursor-pointer"
-            to={`/category/${category.id}`}
+            to={`/category-products/${encodeURIComponent(category.name)}`}
           >
             <img
               src={category.image}

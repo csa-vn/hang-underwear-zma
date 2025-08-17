@@ -84,8 +84,14 @@ const router = createBrowserRouter(
                 male: "Sản phẩm Nam",
                 children: "Sản phẩm Trẻ em",
                 "sleep-sport": "Đồ ngủ & Thể thao",
+                "best-seller": "Best Seller",
               };
-              return map[params.category] || "Sản phẩm";
+              // If it's a predefined category, use the map, otherwise decode and use as-is
+              return (
+                map[params.category] ||
+                decodeURIComponent(params.category) ||
+                "Sản phẩm"
+              );
             },
           },
         },

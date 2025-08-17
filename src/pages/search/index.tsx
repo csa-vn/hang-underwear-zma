@@ -89,6 +89,11 @@ export default function SearchPage() {
     };
   }, []);
 
+  const handleProductSelect = (productName: string) => {
+    setLocalKeyword(productName);
+    setKeyword(productName);
+  };
+
   return (
     <>
       <div className="py-2">
@@ -102,6 +107,7 @@ export default function SearchPage() {
             }
           }}
           onBlur={() => setKeyword(localKeyword)}
+          onProductSelect={handleProductSelect}
         />
       </div>
       {keyword ? (

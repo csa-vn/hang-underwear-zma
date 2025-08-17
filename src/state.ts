@@ -21,9 +21,78 @@ export const bannersState = atom(() =>
   requestWithFallback<string[]>("/banners", [])
 );
 
-export const tabsState = atom(["Tất cả", "Nam", "Nữ", "Trẻ em"]);
+export const tabsState = atom(["Tất cả"]);
+
+// Function to shorten category names for tabs
+const shortenCategoryName = (name: string): string => {
+  const shortenMap: Record<string, string> = {
+    "Áo len": "Áo len",
+    "Blazer": "Blazer", 
+    "Đầm": "Đầm",
+    "Áo phông": "Áo phông",
+    "Áo gi lê": "Gi lê",
+    "Chân váy": "Chân váy",
+    "Quần short": "Short",
+    "Quần bo": "Quần bo",
+    "Túi xách": "Túi",
+    "Phụ kiện": "P.kiện",
+    "Quần dài": "Quần dài",
+    "Áo sơ mi": "Sơ mi",
+    "Quần jeans": "Jeans",
+    "Áo khoác": "Khoác",
+    "Váy ngắn": "Váy",
+    "Quần âu": "Âu",
+    "Đồ bộ": "Bộ",
+    "Đồ ngủ": "Ngủ",
+    "Thể thao": "T.thao",
+  };
+  
+  return shortenMap[name] || (name.length > 8 ? name.substring(0, 6) + ".." : name);
+};
+
+// Dynamic tabs based on actual product categories
+export const dynamicTabsState = atom(async (get) => {
+  const products = await get(productsState);
+  const categories = [...new Set(products.map((p) => p.category.name))].filter(
+    Boolean
+  );
+  return ["Tất cả", ...categories.sort().map(shortenCategoryName)];
+});
+
+// Keep original category names for filtering
+export const fullCategoryNamesState = atom(async (get) => {
+  const products = await get(productsState);
+  const categories = [...new Set(products.map((p) => p.category.name))].filter(
+    Boolean
+  );
+  return ["Tất cả", ...categories.sort()];
+});
 
 export const selectedTabIndexState = atom(0);
+
+// Real categories with images from actual products
+export const realCategoriesState = atom(async (get) => {
+  const products = await get(productsState);
+  const categoryMap = new Map<
+    string,
+    { name: string; image: string; id: number }
+  >();
+
+  products.forEach((product) => {
+    const categoryName = product.category.name;
+    if (categoryName && !categoryMap.has(categoryName)) {
+      categoryMap.set(categoryName, {
+        name: categoryName,
+        image: product.image, // Use product image as category image
+        id: categoryMap.size + 1,
+      });
+    }
+  });
+
+  return Array.from(categoryMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+});
 
 export const categoriesState = atom(() =>
   requestWithFallback<Category[]>("/categories", [])
@@ -105,6 +174,20 @@ export const productsState = atom(async () => {
       address: "",
     };
   });
+});
+
+// Filtered products based on selected category tab
+export const filteredProductsState = atom(async (get) => {
+  const products = await get(productsState);
+  const fullCategoryNames = await get(fullCategoryNamesState);
+  const selectedIndex = get(selectedTabIndexState);
+
+  if (selectedIndex === 0 || fullCategoryNames[selectedIndex] === "Tất cả") {
+    return products; // Show all products
+  }
+
+  const selectedCategory = fullCategoryNames[selectedIndex];
+  return products.filter((p) => p.category.name === selectedCategory);
 });
 
 export const flashSaleProductsState = atom((get) => get(productsState));

@@ -1,16 +1,17 @@
 import { useAtom, useAtomValue } from "jotai";
 import Tabs from "./tabs";
-import { selectedTabIndexState, tabsState } from "@/state";
+import { selectedTabIndexState, dynamicTabsState } from "@/state";
 
 export default function CategoryTabs() {
-  const tabs = useAtomValue(tabsState);
+  const tabs = useAtomValue(dynamicTabsState);
   const [selectedIndex, setSelectedIndex] = useAtom(selectedTabIndexState);
+
   return (
     <Tabs
-      items={["Tất cả", "Nam", "Nữ", "Trẻ em"]}
+      items={tabs}
       value={tabs[selectedIndex]}
       onChange={(tab) => setSelectedIndex(tabs.indexOf(tab))}
-      renderLabel={(item) => item}
+      renderLabel={(item) => item as string}
     />
   );
 }

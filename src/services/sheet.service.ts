@@ -103,11 +103,15 @@ export async function fetchSheetData() {
 export async function saveMemberInfo(userId: string, phone: string) {
   const WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
   if (!WEBHOOK_URL) throw new Error("Không tìm thấy webhook thành viên");
+  
+  // Thêm dấu nháy đơn để giữ số 0 đầu trong Google Sheet
+  const phoneFormatted = `'${phone}`;
+  
   try {
     const response = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, phone }),
+      body: JSON.stringify({ userId, phone: phoneFormatted }),
       mode: "no-cors",
     });
     return { success: true, message: "Đăng ký thành viên thành công!" };
