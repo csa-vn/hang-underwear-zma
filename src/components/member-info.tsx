@@ -1,208 +1,151 @@
-import { useState, useEffect } from "react";
-import { useAtomValue } from "jotai";
-import { userState } from "@/state";
-import toast from "react-hot-toast";
-import { saveMemberInfo } from "@/services/sheet.service";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { authorize, getUserInfo } from "zmp-sdk";
 
 interface MemberData {
   userId: string;
-  phone: string;
-  registeredAt: string;
+  name?: string;
+  avatar?: string;
+  phone?: string;
 }
 
 export default function MemberInfo() {
-  const user = useAtomValue(userState);
-  const [phone, setPhone] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
   const [memberData, setMemberData] = useState<MemberData | null>(null);
+  const [showPhoneForm, setShowPhoneForm] = useState(false);
+  const [phone, setPhone] = useState("");
 
-  // Load member data from localStorage on mount
-  useEffect(() => {
-    const savedData = localStorage.getItem("memberInfo");
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        setMemberData(data);
-      } catch (e) {
-        console.error("Failed to parse member data:", e);
-      }
-    }
-  }, []);
-
-  // Handler submit form - lưu vào sheet "Thông tin thành viên"
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phone.trim()) {
-      toast.error("Vui lòng nhập số điện thoại!");
-      return;
-    }
-
-    if (!user?.userInfo?.id) {
-      toast.error("Không thể lấy thông tin user");
-      return;
-    }
-
+  // Lấy thông tin từ Zalo
+  const handleZaloAuthorize = async () => {
     setLoading(true);
     try {
-      const userId = user.userInfo.id;
+      await authorize({
+        scopes: ["scope.userInfo"],
+      });
 
-      // Lưu trực tiếp vào sheet "Thông tin thành viên"
-      const result = await saveMemberInfo(userId, phone);
+      const userInfo = await getUserInfo({});
+      const userId = userInfo.userInfo?.id || "";
+      const userName = userInfo.userInfo?.name || "";
+      const userAvatar = userInfo.userInfo?.avatar || "";
 
-      console.log("👤 THÀNH VIÊN MỚI ĐĂNG KÝ:");
-      console.log("- User ID:", userId);
-      console.log("- Số điện thoại:", `'${phone}`);
-
-      // Save to localStorage
-      const memberInfo: MemberData = {
+      const newMemberData: MemberData = {
         userId,
-        phone,
-        registeredAt: new Date().toISOString(),
+        name: userName,
+        avatar: userAvatar,
       };
-      localStorage.setItem("memberInfo", JSON.stringify(memberInfo));
-      setMemberData(memberInfo);
 
-      toast.success("Đã đăng ký thông tin thành viên!");
-      setPhone("");
-      setShowPopup(false);
-    } catch (err: any) {
-      console.error("Lỗi đăng ký:", err);
-      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
+      setMemberData(newMemberData);
+      setShowPhoneForm(true); // Hiển thị form nhập SĐT
+      toast.success(`Chào mừng ${userName || "bạn"}!`);
+    } catch (error) {
+      console.error("Authorization error:", error);
+      toast.error("Có lỗi xảy ra khi kết nối với Zalo");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditInfo = () => {
-    setPhone(memberData?.phone || "");
-    setShowPopup(true);
+  // Lưu số điện thoại
+  const handleSavePhone = () => {
+    if (!phone.trim() || phone.length < 10) {
+      toast.error("Vui lòng nhập số điện thoại hợp lệ");
+      return;
+    }
+
+    if (memberData) {
+      setMemberData({
+        ...memberData,
+        phone: phone,
+      });
+      setShowPhoneForm(false);
+      toast.success("Đã lưu thông tin thành công!");
+    }
   };
 
   return (
-    <div className="bg-white rounded-lg p-4">
-      <h3 className="text-lg font-semibold mb-4 text-center">
-        Thông tin thành viên
-      </h3>
-
-      <div className="space-y-3">
-        {/* Hiển thị User ID */}
-        <div className="text-center">
-          <div className="text-sm text-gray-500">User ID:</div>
-          <div className="font-mono text-sm">
-            {user?.userInfo?.id?.slice(-8) || "********"}
-          </div>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+          👤
         </div>
-
-        {/* Hiển thị thông tin thành viên hoặc nút đăng ký */}
-        {memberData ? (
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="text-center mb-3">
-              <div className="text-green-600 font-semibold mb-2">
-                ✅ Đã đăng ký thành viên
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Số điện thoại:</span>
-                <span className="font-semibold">{memberData.phone}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Ngày đăng ký:</span>
-                <span className="text-sm">
-                  {new Date(memberData.registeredAt).toLocaleDateString(
-                    "vi-VN"
-                  )}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={handleEditInfo}
-              className="w-full mt-3 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 text-sm"
-            >
-              ✏️ Cập nhật thông tin
-            </button>
-          </div>
-        ) : (
-          <div className="text-center">
-            <button
-              onClick={() => setShowPopup(true)}
-              className="w-full bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 font-medium"
-            >
-              📝 Đăng ký thành viên
-            </button>
-            <div className="text-xs text-gray-500 mt-2">
-              Đăng ký để nhận ưu đãi và tư vấn
-            </div>
-          </div>
-        )}
+        <div>
+          <h3 className="font-semibold text-gray-800">Thông tin thành viên</h3>
+          <p className="text-sm text-gray-500">
+            Kết nối với Zalo để nhận ưu đãi
+          </p>
+        </div>
       </div>
 
-      {/* Popup nhập số điện thoại */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h4 className="text-lg font-semibold">
-                {memberData ? "Cập nhật thông tin" : "Đăng ký thành viên"}
-              </h4>
-              <button
-                onClick={() => {
-                  setShowPopup(false);
-                  setPhone("");
-                }}
-                className="text-gray-500 hover:text-gray-700 text-xl"
-              >
-                ×
-              </button>
+      {memberData ? (
+        <div className="space-y-3">
+          {/* Hiển thị thông tin thành viên */}
+          <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+            {memberData.avatar && (
+              <img
+                src={memberData.avatar}
+                alt="Avatar"
+                className="w-12 h-12 rounded-full"
+              />
+            )}
+            <div className="flex-1">
+              <div className="font-medium text-green-800">
+                {memberData.name || "Thành viên Zalo"}
+              </div>
+              <div className="text-sm text-green-600">
+                {memberData.phone ? `📱 ${memberData.phone}` : "📱 Chưa có SĐT"}
+              </div>
             </div>
+            <div className="text-2xl">✅</div>
+          </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Số điện thoại của bạn:
-                </label>
+          {/* Form nhập số điện thoại */}
+          {showPhoneForm && (
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-700 mb-3">
+                Vui lòng nhập số điện thoại để hoàn tất đăng ký:
+              </p>
+              <div className="flex gap-2">
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="0987654321"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  disabled={loading}
-                  required
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Nhập số điện thoại"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  maxLength={11}
                 />
-              </div>
-
-              <div className="flex space-x-3">
                 <button
-                  type="button"
-                  onClick={() => {
-                    setShowPopup(false);
-                    setPhone("");
-                  }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400"
-                  disabled={loading}
+                  onClick={handleSavePhone}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 disabled:opacity-50 font-medium"
-                >
-                  {loading
-                    ? "Đang lưu..."
-                    : memberData
-                    ? "Cập nhật"
-                    : "Đăng ký"}
+                  Lưu
                 </button>
               </div>
-            </form>
-
-            <div className="text-xs text-gray-500 mt-3 text-center">
-              💡 Số điện thoại sẽ được dùng để liên hệ tư vấn và gửi thông báo
-              ưu đãi.
             </div>
+          )}
+
+          <div className="text-xs text-gray-500 text-center">
+            🎉 Bạn đã kết nối Zalo! Nhận thông báo ưu đãi.
+          </div>
+        </div>
+      ) : (
+        <div className="text-center">
+          <button
+            onClick={handleZaloAuthorize}
+            disabled={loading}
+            className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Đang kết nối...
+              </>
+            ) : (
+              <>📱 Kết nối với Zalo</>
+            )}
+          </button>
+
+          <div className="text-xs text-gray-500 mt-2">
+            💡 Kết nối để nhận thông báo ưu đãi và tích điểm thành viên
           </div>
         </div>
       )}

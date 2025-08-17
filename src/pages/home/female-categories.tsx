@@ -5,11 +5,11 @@ import ProductGrid from "@/components/product-grid";
 
 export default function FemaleCategories() {
   const allProducts = useAtomValue(productsState);
-  
+
   // Lọc sản phẩm nữ theo tag trong CSV
   const femaleProducts = allProducts.filter((product) => {
     const productTags = product.gender || ""; // Tag column is stored in gender field
-    const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+    const tags = productTags.split(",").map((tag) => tag.trim().toLowerCase());
     return tags.includes("nữ");
   });
 

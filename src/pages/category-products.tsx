@@ -23,28 +23,36 @@ export default function CategoryProductsPage() {
   if (category === "female") {
     filteredProducts = products.filter((product) => {
       const productTags = product.gender || "";
-      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      const tags = productTags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase());
       return tags.includes("nữ");
     });
     title = categoryMap[category];
   } else if (category === "male") {
     filteredProducts = products.filter((product) => {
       const productTags = product.gender || "";
-      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      const tags = productTags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase());
       return tags.includes("nam");
     });
     title = categoryMap[category];
   } else if (category === "children") {
     filteredProducts = products.filter((product) => {
       const productTags = product.gender || "";
-      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      const tags = productTags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase());
       return tags.includes("trẻ em");
     });
     title = categoryMap[category];
   } else if (category === "sleep-sport") {
     filteredProducts = products.filter((product) => {
       const productTags = product.gender || "";
-      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      const tags = productTags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase());
       return tags.includes("đồ thể thao");
     });
     title = categoryMap[category];

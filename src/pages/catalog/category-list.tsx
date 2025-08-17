@@ -15,7 +15,7 @@ export default function CategoryListPage() {
         <SearchBar onClick={() => navigate("/search")} />
       </div>
       <CategoryTabs />
-      
+
       {/* Luôn hiển thị sản phẩm được lọc theo tab, bỏ đi các ô tròn danh mục */}
       <ProductGrid products={filteredProducts} className="pt-4 pb-[13px]" />
     </>

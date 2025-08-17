@@ -25,9 +25,6 @@ export default function Points() {
         <div className="text-lg font-medium opacity-95">
           {user?.userInfo?.name || "Thành viên"}
         </div>
-        <div className="text-xs opacity-75">
-          ID: {user?.userInfo?.id?.slice(-8) || "********"}
-        </div>
       </div>
 
       {/* Điểm tích lũy */}

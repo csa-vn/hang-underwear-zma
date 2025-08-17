@@ -187,11 +187,11 @@ export const filteredProductsState = atom(async (get) => {
   }
 
   const selectedTab = tabs[selectedIndex];
-  
+
   // Lọc sản phẩm theo tag trong CSV (hỗ trợ multi-tag)
   return products.filter((product) => {
     const productTags = product.gender || ""; // Tag column is stored in gender field
-    const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+    const tags = productTags.split(",").map((tag) => tag.trim().toLowerCase());
     return tags.includes(selectedTab.toLowerCase());
   });
 });

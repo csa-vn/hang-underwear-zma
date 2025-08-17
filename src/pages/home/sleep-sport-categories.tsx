@@ -5,16 +5,16 @@ import ProductGrid from "@/components/product-grid";
 
 export default function SleepSportCategories() {
   const allProducts = useAtomValue(productsState);
-  
+
   // Lọc sản phẩm đồ thể thao theo tag trong CSV
   const sleepSportProducts = allProducts.filter((product) => {
     const productTags = product.gender || ""; // Tag column is stored in gender field
-    const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+    const tags = productTags.split(",").map((tag) => tag.trim().toLowerCase());
     return tags.includes("đồ thể thao");
   });
-  
+
   const topSleepSportProducts = sleepSportProducts.slice(0, 4);
-  
+
   return (
     <Section
       title="Đồ ngủ & Thể thao"
