@@ -54,11 +54,9 @@ const shortenCategoryName = (name: string): string => {
 
 // Dynamic tabs based on actual product categories
 export const dynamicTabsState = atom(async (get) => {
-  const products = await get(productsState);
-  const categories = [...new Set(products.map((p) => p.category.name))].filter(
-    Boolean
-  );
-  return ["Tất cả", ...categories.sort().map(shortenCategoryName)];
+  // Danh sách tab cố định theo yêu cầu
+  const tabList = ["quần", "áo", "học sinh", "nữ", "nam", "đồ thể thao"];
+  return ["Tất cả", ...tabList];
 });
 
 // Keep original category names for filtering
@@ -181,15 +179,21 @@ export const productsState = atom(async () => {
 // Filtered products based on selected category tab
 export const filteredProductsState = atom(async (get) => {
   const products = await get(productsState);
-  const fullCategoryNames = await get(fullCategoryNamesState);
+  const tabs = await get(dynamicTabsState);
   const selectedIndex = get(selectedTabIndexState);
 
-  if (selectedIndex === 0 || fullCategoryNames[selectedIndex] === "Tất cả") {
+  if (selectedIndex === 0 || tabs[selectedIndex] === "Tất cả") {
     return products; // Show all products
   }
 
-  const selectedCategory = fullCategoryNames[selectedIndex];
-  return products.filter((p) => p.category.name === selectedCategory);
+  const selectedTab = tabs[selectedIndex];
+  
+  // Lọc sản phẩm theo tag trong CSV (hỗ trợ multi-tag)
+  return products.filter((product) => {
+    const productTags = product.gender || ""; // Tag column is stored in gender field
+    const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+    return tags.includes(selectedTab.toLowerCase());
+  });
 });
 
 export const flashSaleProductsState = atom((get) => get(productsState));

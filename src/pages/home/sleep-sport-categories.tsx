@@ -1,24 +1,20 @@
 import Section from "@/components/section";
 import { useAtomValue } from "jotai";
-import { categoriesState, productsState } from "@/state";
+import { productsState } from "@/state";
 import ProductGrid from "@/components/product-grid";
 
 export default function SleepSportCategories() {
-  const categories = useAtomValue(categoriesState);
   const allProducts = useAtomValue(productsState);
-  // Lọc các danh mục Đồ ngủ & Thể thao
-  const sleepSportCategories = categories.filter(
-    (category) =>
-      category.name.includes("Đồ ngủ") ||
-      category.name.includes("Đồ lót") ||
-      category.name.includes("Thể thao") ||
-      category.name.includes("Đồ bơi")
-  );
-  const sleepSportCategoryIds = sleepSportCategories.map((cat) => cat.id);
-  const sleepSportProducts = allProducts.filter((product) =>
-    sleepSportCategoryIds.includes(product.category.id)
-  );
+  
+  // Lọc sản phẩm đồ thể thao theo tag trong CSV
+  const sleepSportProducts = allProducts.filter((product) => {
+    const productTags = product.gender || ""; // Tag column is stored in gender field
+    const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+    return tags.includes("đồ thể thao");
+  });
+  
   const topSleepSportProducts = sleepSportProducts.slice(0, 4);
+  
   return (
     <Section
       title="Đồ ngủ & Thể thao"

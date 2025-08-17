@@ -19,25 +19,34 @@ export default function CategoryProductsPage() {
   let filteredProducts = products;
   let title = "Sản phẩm";
 
-  // Handle hardcoded categories from home page
+  // Handle hardcoded categories from home page using tag filtering
   if (category === "female") {
-    filteredProducts = products.filter((p) => p.gender === "Nữ");
+    filteredProducts = products.filter((product) => {
+      const productTags = product.gender || "";
+      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      return tags.includes("nữ");
+    });
     title = categoryMap[category];
   } else if (category === "male") {
-    filteredProducts = products.filter((p) => p.gender === "Nam");
+    filteredProducts = products.filter((product) => {
+      const productTags = product.gender || "";
+      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      return tags.includes("nam");
+    });
     title = categoryMap[category];
   } else if (category === "children") {
-    filteredProducts = products.filter((p) => p.gender === "Trẻ em");
+    filteredProducts = products.filter((product) => {
+      const productTags = product.gender || "";
+      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      return tags.includes("trẻ em");
+    });
     title = categoryMap[category];
   } else if (category === "sleep-sport") {
-    // Filter by specific category names for sleep/sport
-    filteredProducts = products.filter(
-      (p) =>
-        p.category.name.includes("đồ ngủ") ||
-        p.category.name.includes("thể thao") ||
-        p.category.name.toLowerCase().includes("sleep") ||
-        p.category.name.toLowerCase().includes("sport")
-    );
+    filteredProducts = products.filter((product) => {
+      const productTags = product.gender || "";
+      const tags = productTags.split(",").map(tag => tag.trim().toLowerCase());
+      return tags.includes("đồ thể thao");
+    });
     title = categoryMap[category];
   } else if (category === "best-seller") {
     // Keep all products for best seller (could add specific logic later)
