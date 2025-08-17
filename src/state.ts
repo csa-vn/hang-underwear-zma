@@ -27,8 +27,8 @@ export const tabsState = atom(["Tất cả"]);
 const shortenCategoryName = (name: string): string => {
   const shortenMap: Record<string, string> = {
     "Áo len": "Áo len",
-    "Blazer": "Blazer", 
-    "Đầm": "Đầm",
+    Blazer: "Blazer",
+    Đầm: "Đầm",
     "Áo phông": "Áo phông",
     "Áo gi lê": "Gi lê",
     "Chân váy": "Chân váy",
@@ -46,8 +46,10 @@ const shortenCategoryName = (name: string): string => {
     "Đồ ngủ": "Ngủ",
     "Thể thao": "T.thao",
   };
-  
-  return shortenMap[name] || (name.length > 8 ? name.substring(0, 6) + ".." : name);
+
+  return (
+    shortenMap[name] || (name.length > 8 ? name.substring(0, 6) + ".." : name)
+  );
 };
 
 // Dynamic tabs based on actual product categories

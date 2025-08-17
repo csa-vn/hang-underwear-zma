@@ -19,13 +19,13 @@ export default function MemberInfo() {
 
   // Load member data from localStorage on mount
   useEffect(() => {
-    const savedData = localStorage.getItem('memberInfo');
+    const savedData = localStorage.getItem("memberInfo");
     if (savedData) {
       try {
         const data = JSON.parse(savedData);
         setMemberData(data);
       } catch (e) {
-        console.error('Failed to parse member data:', e);
+        console.error("Failed to parse member data:", e);
       }
     }
   }, []);
@@ -58,9 +58,9 @@ export default function MemberInfo() {
       const memberInfo: MemberData = {
         userId,
         phone,
-        registeredAt: new Date().toISOString()
+        registeredAt: new Date().toISOString(),
       };
-      localStorage.setItem('memberInfo', JSON.stringify(memberInfo));
+      localStorage.setItem("memberInfo", JSON.stringify(memberInfo));
       setMemberData(memberInfo);
 
       toast.success("Đã đăng ký thông tin thành viên!");
@@ -110,7 +110,9 @@ export default function MemberInfo() {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Ngày đăng ký:</span>
                 <span className="text-sm">
-                  {new Date(memberData.registeredAt).toLocaleDateString('vi-VN')}
+                  {new Date(memberData.registeredAt).toLocaleDateString(
+                    "vi-VN"
+                  )}
                 </span>
               </div>
             </div>
@@ -188,13 +190,18 @@ export default function MemberInfo() {
                   disabled={loading}
                   className="flex-1 bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 disabled:opacity-50 font-medium"
                 >
-                  {loading ? "Đang lưu..." : (memberData ? "Cập nhật" : "Đăng ký")}
+                  {loading
+                    ? "Đang lưu..."
+                    : memberData
+                    ? "Cập nhật"
+                    : "Đăng ký"}
                 </button>
               </div>
             </form>
 
             <div className="text-xs text-gray-500 mt-3 text-center">
-              💡 Số điện thoại sẽ được dùng để liên hệ tư vấn và gửi thông báo ưu đãi.
+              💡 Số điện thoại sẽ được dùng để liên hệ tư vấn và gửi thông báo
+              ưu đãi.
             </div>
           </div>
         </div>
