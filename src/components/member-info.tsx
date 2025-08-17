@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { userState } from "@/state";
 import toast from "react-hot-toast";
-import { appendContactRow } from "@/services/sheet.service";
+import { saveMemberInfo } from "@/services/sheet.service";
 
 export default function MemberInfo() {
   const user = useAtomValue(userState);
@@ -25,18 +25,14 @@ export default function MemberInfo() {
     setLoading(true);
     try {
       const userId = user.userInfo.id;
-      
-      // Gửi lên Google Apps Script với "Thông tin thành viên" làm product
-      const result = await appendContactRow(
-        userId,  // Gửi User ID thay vì name
-        phone,
-        "Thông tin thành viên"  // Product name để phân biệt với consultation
-      );
-      
+
+      // Lưu trực tiếp vào sheet "Thông tin thành viên"
+      const result = await saveMemberInfo(userId, phone);
+
       console.log("👤 THÀNH VIÊN MỚI ĐĂNG KÝ:");
       console.log("- User ID:", userId);
       console.log("- Số điện thoại:", `'${phone}`);
-      
+
       toast.success("Đã đăng ký thông tin thành viên!");
       setPhone("");
     } catch (err: any) {
@@ -91,7 +87,8 @@ export default function MemberInfo() {
 
         {/* Thông tin bổ sung */}
         <div className="text-xs text-gray-500 mt-4 p-2 bg-gray-50 rounded">
-          💡 Số điện thoại sẽ được dùng để liên hệ tư vấn và gửi thông báo ưu đãi.
+          💡 Số điện thoại sẽ được dùng để liên hệ tư vấn và gửi thông báo ưu
+          đãi.
         </div>
       </div>
     </div>

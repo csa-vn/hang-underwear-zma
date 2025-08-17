@@ -2,6 +2,48 @@ const SHEET_ID = "1XSwP-zDZfel_fMKMLlI8eq8oqoEP7Tep2MInPTnWERc";
 const API_KEY =
   import.meta.env.VITE_GOOGLE_SHEET_API || import.meta.env.GOOGLE_SHEET_API;
 
+// Append member info to "Thông tin thành viên" sheet using Google Sheets API
+async function appendToMemberSheet(
+  userId: string,
+  phone: string
+): Promise<boolean> {
+  const SHEET_NAME = "Thông tin thành viên";
+  const range = `${SHEET_NAME}!A:B`; // Chỉ 2 cột: A (UserID), B (Phone)
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(
+    range
+  )}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+
+  // Thêm dấu nháy đơn để giữ số 0 đầu
+  const phoneText = `'${phone}`;
+  const body = {
+    values: [[userId, phoneText]], // Chỉ 2 cột: UserID và Phone
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log("✅ Member sheet API response:", result);
+      return true;
+    } else {
+      const errorText = await response.text();
+      console.error("❌ Member sheet API error:", response.status, errorText);
+      return false;
+    }
+  } catch (error) {
+    console.error("💥 Member sheet API fetch error:", error);
+    return false;
+  }
+}
+
 // Append data to Google Sheet using Google Sheets API
 async function appendToGoogleSheet(
   phone: string,
@@ -57,7 +99,23 @@ export async function fetchSheetData() {
   return data.values; // Array of rows
 }
 
-// Ghi dữ liệu vào sheet (append row) - số điện thoại, sản phẩm và thời gian
+// Lưu thông tin thành viên vào webhook riêng
+export async function saveMemberInfo(userId: string, phone: string) {
+  const WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
+  if (!WEBHOOK_URL) throw new Error("Không tìm thấy webhook thành viên");
+  try {
+    const response = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, phone }),
+      mode: "no-cors",
+    });
+    return { success: true, message: "Đăng ký thành viên thành công!" };
+  } catch (error: any) {
+    throw new Error("Không thể lưu thông tin thành viên");
+  }
+}
+
 export async function appendContactRow(
   name: string, // Không dùng nhưng giữ để tương thích
   phone: string,
