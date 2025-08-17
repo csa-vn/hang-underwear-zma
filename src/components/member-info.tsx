@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { authorize, getUserInfo } from "zmp-sdk";
 
@@ -7,6 +7,7 @@ interface MemberData {
   name?: string;
   avatar?: string;
   phone?: string;
+  registeredAt?: string;
 }
 
 export default function MemberInfo() {
@@ -14,6 +15,34 @@ export default function MemberInfo() {
   const [memberData, setMemberData] = useState<MemberData | null>(null);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
   const [phone, setPhone] = useState("");
+  const [loadingData, setLoadingData] = useState(false);
+
+  // Load data từ Google Sheets khi có user ID
+  const loadMemberFromSheets = async (userId: string) => {
+    try {
+      setLoadingData(true);
+      // TODO: Implement load function từ Google Sheets
+      // const { getMemberInfo } = await import("@/services/sheet.service");
+      // const existingData = await getMemberInfo(userId);
+      // if (existingData) {
+      //   setMemberData(existingData);
+      // }
+    } catch (error) {
+      console.error("Failed to load member data from sheets:", error);
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  // Load data từ Google Sheets khi component mount (nếu có user ID từ Zalo)
+  useEffect(() => {
+    const loadMemberData = async () => {
+      // Tạm thời để trống vì chưa có cách lấy user ID khi chưa authorize
+      // Có thể thêm logic load dựa trên cookie hoặc session sau
+    };
+
+    loadMemberData();
+  }, []);
 
   // Lấy thông tin từ Zalo
   const handleZaloAuthorize = async () => {
@@ -28,14 +57,20 @@ export default function MemberInfo() {
       const userName = userInfo.userInfo?.name || "";
       const userAvatar = userInfo.userInfo?.avatar || "";
 
+      // Kiểm tra xem user đã có trong Google Sheets chưa
+      await loadMemberFromSheets(userId);
+
       const newMemberData: MemberData = {
         userId,
         name: userName,
         avatar: userAvatar,
+        registeredAt: new Date().toISOString(),
       };
 
+      // Chỉ lưu vào state, không lưu localStorage
       setMemberData(newMemberData);
-      setShowPhoneForm(true); // Hiển thị form nhập SĐT
+      setShowPhoneForm(true);
+
       toast.success(`Chào mừng ${userName || "bạn"}!`);
     } catch (error) {
       console.error("Authorization error:", error);
@@ -46,19 +81,35 @@ export default function MemberInfo() {
   };
 
   // Lưu số điện thoại
-  const handleSavePhone = () => {
+  const handleSavePhone = async () => {
     if (!phone.trim() || phone.length < 10) {
       toast.error("Vui lòng nhập số điện thoại hợp lệ");
       return;
     }
 
     if (memberData) {
-      setMemberData({
+      setLoading(true);
+
+      const updatedData = {
         ...memberData,
         phone: phone,
-      });
-      setShowPhoneForm(false);
-      toast.success("Đã lưu thông tin thành công!");
+      };
+
+      try {
+        // Lưu vào Google Sheets
+        const { saveMemberInfo } = await import("@/services/sheet.service");
+        await saveMemberInfo(updatedData.userId, phone);
+
+        // Chỉ cập nhật state khi lưu thành công
+        setMemberData(updatedData);
+        setShowPhoneForm(false);
+        toast.success("Đã lưu thông tin thành công!");
+      } catch (sheetError) {
+        console.error("Failed to save to Google Sheets:", sheetError);
+        toast.error("Không thể lưu thông tin. Vui lòng thử lại!");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -99,7 +150,7 @@ export default function MemberInfo() {
           </div>
 
           {/* Form nhập số điện thoại */}
-          {showPhoneForm && (
+          {showPhoneForm && !memberData.phone && (
             <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-700 mb-3">
                 Vui lòng nhập số điện thoại để hoàn tất đăng ký:
@@ -115,9 +166,10 @@ export default function MemberInfo() {
                 />
                 <button
                   onClick={handleSavePhone}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                 >
-                  Lưu
+                  {loading ? "..." : "Lưu"}
                 </button>
               </div>
             </div>
