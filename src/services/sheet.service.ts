@@ -171,3 +171,66 @@ export async function appendContactRow(
     message: "Thông tin đã được ghi nhận! Nhân viên sẽ liên hệ sớm nhất.",
   };
 }
+
+// Lưu thông tin thành viên vào Google Sheet riêng
+export async function appendMemberInfo(
+  userId: string,
+  name: string,
+  phone: string,
+  avatar?: string
+) {
+  const timestamp = new Date().toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  console.log("👤 THÔNG TIN THÀNH VIÊN MỚI:");
+  console.log("- User ID:", userId);
+  console.log("- Tên:", name);
+  console.log("- Số điện thoại:", `'${phone}`);
+  console.log("- Avatar:", avatar);
+  console.log("- Thời gian:", timestamp);
+
+  // Log cho việc copy thủ công - chỉ ID và SĐT
+  console.log("📋 Copy dòng này vào Google Sheet (tab Thông tin thành viên):");
+  console.log(`${userId}\t'${phone}`);
+
+  // Sử dụng webhook riêng cho thành viên
+  const MEMBER_WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
+
+  if (MEMBER_WEBHOOK_URL) {
+    try {
+      console.log("🚀 Đang lưu thông tin thành viên vào sheet riêng...");
+
+      // Payload cho member webhook
+      const payload = {
+        userId,
+        name,
+        phone: `'${phone}`, // Giữ số 0 đầu
+        avatar,
+        timestamp,
+      };
+
+      await fetch(MEMBER_WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        mode: "no-cors",
+      });
+      console.log("✅ Đã lưu thông tin thành viên!");
+      return true;
+    } catch (error: any) {
+      console.warn("⚠️ Lỗi lưu thành viên:", error.message);
+      return false;
+    }
+  }
+
+  return false;
+}

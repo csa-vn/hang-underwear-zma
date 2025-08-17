@@ -8,6 +8,12 @@ import { fetchSheetData } from "@/services/sheet.service";
 export const userState = atom(() =>
   getUserInfo({
     avatarType: "normal",
+  }).then((result) => {
+    // Fix cho development mode - thêm fallback name
+    if (result?.userInfo && !result.userInfo.name) {
+      result.userInfo.name = `User_${result.userInfo.id?.slice(-4) || "XXXX"}`;
+    }
+    return result;
   })
 );
 
