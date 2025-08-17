@@ -15,8 +15,10 @@ async function appendToGoogleSheet(
     range
   )}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
 
+  // Thêm dấu nháy đơn để giữ số 0 đầu
+  const phoneText = `'${phone}`;
   const body = {
-    values: [[phone, product, timestamp]],
+    values: [[phoneText, product, timestamp]],
   };
 
   try {
@@ -72,19 +74,20 @@ export async function appendContactRow(
   });
 
   // Log thông tin để admin có thể theo dõi
+  const phoneText = `'${phone}`;
   console.log("📞 THÔNG TIN TƯ VẤN MỚI:");
-  console.log("- Số điện thoại:", phone);
+  console.log("- Số điện thoại:", phoneText);
   console.log("- Sản phẩm:", product);
   console.log("- Thời gian:", timestamp);
   console.log("📝 Dữ liệu để ghi vào Google Sheet:", [
-    phone,
+    phoneText,
     product,
     timestamp,
   ]);
 
   // Log formatted data for easy copy-paste to Google Sheet
   console.log("📋 Copy dòng này vào Google Sheet:");
-  console.log(`${phone}\t${product}\t${timestamp}`);
+  console.log(`${phoneText}\t${product}\t${timestamp}`);
 
   // Try Google Apps Script webhook (cách đơn giản nhất)
   const WEBHOOK_URL = import.meta.env.VITE_SHEET_WEBHOOK_URL;
@@ -97,7 +100,7 @@ export async function appendContactRow(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          phone,
+          phone: phoneText,
           product,
           timestamp,
         }),
