@@ -3,23 +3,29 @@ const API_KEY =
   import.meta.env.VITE_GOOGLE_SHEET_API || import.meta.env.GOOGLE_SHEET_API;
 
 // Append data to Google Sheet using Google Sheets API
-async function appendToGoogleSheet(phone: string, product: string, timestamp: string): Promise<boolean> {
+async function appendToGoogleSheet(
+  phone: string,
+  product: string,
+  timestamp: string
+): Promise<boolean> {
   const SHEET_NAME = "Liên hệ khách hàng";
   const range = `${SHEET_NAME}!A:C`; // Append to columns A, B, C
-  
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
-  
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(
+    range
+  )}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+
   const body = {
-    values: [[phone, product, timestamp]]
+    values: [[phone, product, timestamp]],
   };
 
   try {
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     if (response.ok) {

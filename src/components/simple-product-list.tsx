@@ -35,11 +35,15 @@ export default function SimpleProductList() {
       toast.error("Vui lòng nhập số điện thoại!");
       return;
     }
-    
+
     setLoading(true);
     try {
       const name = user?.userInfo?.name || "";
-      const result = await appendContactRow(name, form.phone, showForm?.product || "");
+      const result = await appendContactRow(
+        name,
+        form.phone,
+        showForm?.product || ""
+      );
       toast.success("Nhân viên sẽ sớm liên hệ cho bạn!");
       setShowForm(null);
     } catch (err: any) {
