@@ -1,5 +1,4 @@
 import CartList from "./cart-list";
-import ApplyVoucher from "./apply-voucher";
 import CartSummary from "./cart-summary";
 import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtomValue } from "jotai";
@@ -25,8 +24,6 @@ export default function CartPage() {
       <SelectAll />
       <HorizontalDivider />
       <CartList />
-      <HorizontalDivider />
-      <ApplyVoucher />
       <HorizontalDivider />
       <CartSummary />
     </div>

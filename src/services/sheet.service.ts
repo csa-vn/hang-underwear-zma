@@ -99,6 +99,40 @@ export async function fetchSheetData() {
   return data.values; // Array of rows
 }
 
+// Lấy thông tin thành viên từ Google Sheets bằng Zalo user ID
+export async function getMemberByZaloId(userId: string) {
+  const SHEET_NAME = "Thông tin thành viên";
+  const range = `${SHEET_NAME}!A:B`; // Cột A (UserID), B (Phone)
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(
+    range
+  )}?key=${API_KEY}`;
+
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      const result = await response.json();
+      const rows = result.values || [];
+
+      // Tìm row có UserID khớp
+      const memberRow = rows.find((row: string[]) => row[0] === userId);
+      if (memberRow) {
+        return {
+          userId: memberRow[0],
+          phone: memberRow[1]?.replace("'", "") || "", // Remove leading quote
+        };
+      }
+      return null;
+    } else {
+      console.error("Failed to fetch member data:", response.status);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching member data:", error);
+    return null;
+  }
+}
+
 // Lưu thông tin thành viên vào webhook riêng
 export async function saveMemberInfo(userId: string, phone: string) {
   const WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;

@@ -1,11 +1,28 @@
 import Section from "@/components/section";
 import TransitionLink from "@/components/transition-link";
 import { useAtomValue } from "jotai";
-import { Link, useNavigate } from "react-router-dom";
-import { categoriesState } from "@/state";
+import { productsState } from "@/state";
 
 export default function Category() {
-  const categories = useAtomValue(categoriesState);
+  // Lấy tất cả sản phẩm
+  const products = useAtomValue(productsState);
+
+  // Tạo danh sách category theo tag đầu tiên
+  const categoryMap = new Map();
+  products.forEach((product) => {
+    const tags = (product.gender || "")
+      .split(",")
+      .map((t) => t.trim().toLowerCase());
+    const firstTag = tags[0];
+    if (firstTag && !categoryMap.has(firstTag)) {
+      categoryMap.set(firstTag, {
+        id: categoryMap.size + 1,
+        name: firstTag.charAt(0).toUpperCase() + firstTag.slice(1),
+        image: product.image,
+      });
+    }
+  });
+  const categories = Array.from(categoryMap.values());
 
   return (
     <Section title="Danh mục sản phẩm" viewMoreTo="/categories">
@@ -14,7 +31,7 @@ export default function Category() {
           <TransitionLink
             key={category.id}
             className="flex flex-col items-center space-y-2 flex-none basis-[70px] overflow-hidden cursor-pointer"
-            to={`/category/${category.id}`}
+            to={`/category/${category.name}`}
           >
             <img
               src={category.image}

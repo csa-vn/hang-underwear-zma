@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { authorize, getUserInfo } from "zmp-sdk";
+import * as sheetService from "../services/sheet.service";
 
 interface MemberData {
   userId: string;
@@ -21,27 +22,56 @@ export default function MemberInfo() {
   const loadMemberFromSheets = async (userId: string) => {
     try {
       setLoadingData(true);
-      // TODO: Implement load function từ Google Sheets
-      // const { getMemberInfo } = await import("@/services/sheet.service");
-      // const existingData = await getMemberInfo(userId);
-      // if (existingData) {
-      //   setMemberData(existingData);
-      // }
+      const existingMember = await sheetService.getMemberByZaloId(userId);
+      if (existingMember) {
+        return existingMember;
+      }
+      return null;
     } catch (error) {
       console.error("Failed to load member data from sheets:", error);
+      return null;
     } finally {
       setLoadingData(false);
     }
   };
 
-  // Load data từ Google Sheets khi component mount (nếu có user ID từ Zalo)
-  useEffect(() => {
-    const loadMemberData = async () => {
-      // Tạm thời để trống vì chưa có cách lấy user ID khi chưa authorize
-      // Có thể thêm logic load dựa trên cookie hoặc session sau
-    };
+  // Kiểm tra Zalo session khi component mount
+  const checkZaloSession = async () => {
+    try {
+      setLoadingData(true);
+      const userInfo = await getUserInfo();
+      if (userInfo && userInfo.userInfo?.id) {
+        // User đã đăng nhập Zalo, load data từ Google Sheets
+        const existingMember = await loadMemberFromSheets(userInfo.userInfo.id);
+        if (existingMember) {
+          // Đã có data, cập nhật với thông tin Zalo mới nhất
+          setMemberData({
+            userId: userInfo.userInfo.id,
+            name: userInfo.userInfo.name || "",
+            avatar: userInfo.userInfo.avatar || "",
+            phone: existingMember.phone || "",
+          });
+        } else {
+          // Chưa có data, hiển thị form để nhập phone
+          setMemberData({
+            userId: userInfo.userInfo.id,
+            name: userInfo.userInfo.name || "",
+            avatar: userInfo.userInfo.avatar || "",
+          });
+          setShowPhoneForm(true);
+        }
+      }
+    } catch (error) {
+      // User chưa đăng nhập Zalo, không làm gì
+      console.log("User not logged in to Zalo yet");
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
-    loadMemberData();
+  // Load data từ Google Sheets khi component mount (check Zalo session)
+  useEffect(() => {
+    checkZaloSession();
   }, []);
 
   // Lấy thông tin từ Zalo
