@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface OrderNotificationProps {
   isVisible: boolean;
@@ -14,6 +15,7 @@ const OrderNotification: React.FC<OrderNotificationProps> = ({
   autoCloseDelay = 3000,
 }) => {
   const [isShowing, setIsShowing] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isVisible) {
@@ -28,14 +30,23 @@ const OrderNotification: React.FC<OrderNotificationProps> = ({
     return undefined;
   }, [isVisible, autoCloseDelay, onClose]);
 
+  const handlePopupClick = () => {
+    setIsShowing(false);
+    setTimeout(() => {
+      onClose();
+      navigate("/cart");
+    }, 300);
+  };
+
   if (!isVisible && !isShowing) return null;
 
   return (
     <div
-      className={`fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 max-w-sm ${
+      className={`fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 max-w-sm cursor-pointer ${
         isShowing ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
       }`}
       style={{ minWidth: "280px" }}
+      onClick={handlePopupClick}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center">
@@ -60,7 +71,8 @@ const OrderNotification: React.FC<OrderNotificationProps> = ({
           </div>
         </div>
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent popup click
             setIsShowing(false);
             setTimeout(onClose, 300);
           }}
