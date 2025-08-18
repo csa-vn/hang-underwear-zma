@@ -55,7 +55,7 @@ const shortenCategoryName = (name: string): string => {
 // Dynamic tabs based on actual product categories
 export const dynamicTabsState = atom(async (get) => {
   // Danh sách tab cố định theo yêu cầu
-  const tabList = ["quần", "áo", "học sinh", "nữ", "nam", "đồ thể thao"];
+  const tabList = ["Quần", "Áo", "Học sinh", "Nữ", "Nam", "Đồ ngủ & Thể thao"];
   return ["Tất cả", ...tabList];
 });
 
@@ -192,6 +192,13 @@ export const filteredProductsState = atom(async (get) => {
   return products.filter((product) => {
     const productTags = product.gender || ""; // Tag column is stored in gender field
     const tags = productTags.split(",").map((tag) => tag.trim().toLowerCase());
+    
+    // Handle special case for "Đồ ngủ & Thể thao"
+    if (selectedTab === "Đồ ngủ & Thể thao") {
+      return tags.includes("đồ thể thao");
+    }
+    
+    // Convert tab name to lowercase for comparison
     return tags.includes(selectedTab.toLowerCase());
   });
 });
