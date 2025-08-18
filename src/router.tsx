@@ -5,7 +5,6 @@ import CategoryListPage from "@/pages/catalog/category-list";
 import ProductDetailPage from "@/pages/catalog/product-detail";
 import HomePage from "@/pages/home";
 import ProfilePage from "@/pages/profile";
-import OpenZMA from "@/pages/zma-link";
 import SearchPage from "@/pages/search";
 import { createBrowserRouter } from "react-router-dom";
 import { getBasePath } from "@/utils/zma";
@@ -46,13 +45,6 @@ const router = createBrowserRouter(
             logo: true,
           },
         },
-          {
-            path: "/zma-link",
-            element: <OpenZMA />,
-            handle: {
-              title: "Mở Zalo Mini App",
-            },
-          },
         {
           path: "/flash-sales",
           element: <ProductListPage />,
