@@ -192,12 +192,12 @@ export const filteredProductsState = atom(async (get) => {
   return products.filter((product) => {
     const productTags = product.gender || ""; // Tag column is stored in gender field
     const tags = productTags.split(",").map((tag) => tag.trim().toLowerCase());
-    
+
     // Handle special case for "Đồ ngủ & Thể thao"
     if (selectedTab === "Đồ ngủ & Thể thao") {
       return tags.includes("đồ thể thao");
     }
-    
+
     // Convert tab name to lowercase for comparison
     return tags.includes(selectedTab.toLowerCase());
   });
