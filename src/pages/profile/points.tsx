@@ -13,20 +13,6 @@ export default function Points() {
         backgroundImage: `url(${pointsCover})`,
       }}
     >
-      {/* Thông tin thành viên */}
-      <div className="mb-4">
-        {user?.userInfo?.avatar && (
-          <img
-            src={user.userInfo.avatar}
-            alt="Avatar"
-            className="w-16 h-16 rounded-full mx-auto mb-2 border-2 border-white"
-          />
-        )}
-        <div className="text-lg font-medium opacity-95">
-          {user?.userInfo?.name || "Thành viên"}
-        </div>
-      </div>
-
       {/* Điểm tích lũy */}
       <div className="text-xl font-medium opacity-95">20 điểm</div>
       <div className="opacity-95 text-2xs">HSD: 02/12/2024</div>
