@@ -4,12 +4,14 @@ import zmp from "zmp-sdk";
 import { toast } from "react-hot-toast";
 import { authorize, getUserInfo } from "zmp-sdk";
 import * as sheetService from "../services/sheet.service";
+import { ZaloPhoneService } from "../services/zalo-phone.service";
 
 interface MemberData {
   userId: string;
   name?: string;
   avatar?: string;
   phone?: string;
+  followedOA?: boolean;
   registeredAt?: string;
 }
 
@@ -20,6 +22,8 @@ export default function MemberInfo() {
   const [phone, setPhone] = useState("");
   const [loadingData, setLoadingData] = useState(false);
   const [forceLogout, setForceLogout] = useState(false); // Flag để force logout
+  const [phoneToken, setPhoneToken] = useState<string>(""); // Phone token state
+  const [apiResults, setApiResults] = useState<any[]>([]); // API test results
 
   // Load data từ Google Sheets khi có user ID
   const loadMemberFromSheets = async (userId: string) => {
@@ -65,6 +69,7 @@ export default function MemberInfo() {
             name: userInfo.userInfo.name || "",
             avatar: userInfo.userInfo.avatar || "",
             phone: existingMember.phone || "",
+            followedOA: userInfo.userInfo.followedOA || false,
           });
         } else {
           // Chưa có data, hiển thị form để nhập phone
@@ -72,6 +77,7 @@ export default function MemberInfo() {
             userId: userInfo.userInfo.id,
             name: userInfo.userInfo.name || "",
             avatar: userInfo.userInfo.avatar || "",
+            followedOA: userInfo.userInfo.followedOA || false,
           });
           setShowPhoneForm(true);
         }
@@ -146,6 +152,7 @@ export default function MemberInfo() {
         userId,
         name: userName,
         avatar: userAvatar,
+        followedOA: userInfoAny?.followedOA || false,
         // phone: userPhone, // Bỏ dòng này nếu chưa lấy được số điện thoại
         registeredAt: new Date().toISOString(),
       };
@@ -196,6 +203,81 @@ export default function MemberInfo() {
     }
   };
 
+  // Test CORS policy và server accessibility
+  const handleTestCORS = async () => {
+    setLoading(true);
+    try {
+      console.log("\n🧪 STARTING CORS POLICY TEST");
+
+      const { CORSTestService } = await import("@/services/cors-test.service");
+
+      // Test CORS với các servers khác nhau
+      await CORSTestService.testCORSPolicy();
+
+      // Test authentication requirements
+      await CORSTestService.testAuthRequirements();
+
+      toast.success("✅ CORS test hoàn thành! Xem Console để biết chi tiết");
+    } catch (error) {
+      console.error("🔍 DEBUG - CORS test error:", error);
+      toast.error("Có lỗi khi test CORS. Xem Console!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Test trực tiếp Zalo Open API để xem response
+  const handleTestZaloAPI = async () => {
+    setLoading(true);
+    try {
+      console.log("\n🚀 STARTING ZALO OPEN API TEST");
+      console.log("🔍 DEBUG - Step 1: Getting phone token...");
+
+      const res = await zmp.getPhoneNumber();
+      console.log("🔍 DEBUG - getPhoneNumber response:", res);
+
+      const phoneTokenReceived = res?.token || "";
+      console.log("🔍 DEBUG - Phone token received:", phoneTokenReceived);
+
+      // Store phone token in state
+      setPhoneToken(phoneTokenReceived);
+
+      if (phoneTokenReceived) {
+        console.log("\n🔍 DEBUG - Step 3: Testing Zalo Open API directly...");
+
+        const { ZaloPhoneService } = await import(
+          "@/services/zalo-phone-clean.service"
+        );
+
+        // Test format chính thức từ Zalo docs
+        const officialResult = await ZaloPhoneService.testOfficialZaloAPI(
+          phoneTokenReceived
+        );
+        console.log("🔍 DEBUG - Official format result:", officialResult);
+
+        if (!officialResult.success) {
+          // Fallback: Test các endpoints cũ
+          console.log(
+            "🔍 DEBUG - Official format failed, trying old endpoints..."
+          );
+          const fallbackResult = await ZaloPhoneService.testZaloOpenAPI(
+            phoneTokenReceived
+          );
+          console.log("🔍 DEBUG - Fallback result:", fallbackResult);
+        }
+
+        toast.success("✅ API test hoàn thành! Xem Console để biết chi tiết");
+      } else {
+        toast.error("Không lấy được phone token từ Zalo");
+      }
+    } catch (error) {
+      console.error("🔍 DEBUG - Test API error:", error);
+      toast.error("Có lỗi khi test API. Xem Console!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Lấy số điện thoại từ Zalo Mini App
   const handleGetPhoneFromZalo = async () => {
     setLoading(true);
@@ -214,27 +296,36 @@ export default function MemberInfo() {
         JSON.stringify(res, null, 2)
       );
 
-      const phoneToken = res?.token || "";
-      console.log("🔍 DEBUG - Phone token:", phoneToken);
+      const phoneTokenReceived = res?.token || "";
+      console.log("🔍 DEBUG - Phone token:", phoneTokenReceived);
 
-      if (phoneToken) {
+      // Store phone token in state
+      setPhoneToken(phoneTokenReceived);
+
+      if (phoneTokenReceived) {
         // Decode token bằng Zalo API - thử tất cả endpoints
         try {
           const { ZaloPhoneService } = await import(
-            "@/services/zalo-phone.service"
+            "@/services/zalo-phone-clean.service"
           );
 
           console.log("🔍 DEBUG - Trying main decode method first...");
-          let actualPhone = await ZaloPhoneService.decodePhoneToken(phoneToken);
+          let actualPhone = await ZaloPhoneService.decodePhoneToken(
+            phoneTokenReceived
+          );
 
           // Nếu method chính không work, thử tất cả endpoints
           if (!actualPhone) {
             console.log(
-              "🔍 DEBUG - Main method failed, trying all endpoints..."
+              "🔍 DEBUG - Main method failed, trying fallback endpoints..."
             );
-            actualPhone = await ZaloPhoneService.tryMultipleEndpoints(
-              phoneToken
+            const fallbackResult = await ZaloPhoneService.testZaloOpenAPI(
+              phoneTokenReceived
             );
+            actualPhone =
+              fallbackResult?.data?.phone ||
+              fallbackResult?.data?.number ||
+              null;
           }
 
           console.log("🔍 DEBUG - Final decoded phone:", actualPhone);
@@ -390,10 +481,276 @@ export default function MemberInfo() {
               <button
                 onClick={handleGetPhoneFromZalo}
                 disabled={loading}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 mb-2"
               >
                 {loading ? "..." : "Lấy số điện thoại từ Zalo"}
               </button>
+
+              {/* Row 1: Main API Tests */}
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={handleTestZaloAPI}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 text-sm"
+                >
+                  {loading ? "..." : "🧪 Test API"}
+                </button>
+
+                <button
+                  onClick={async () => {
+                    if (!phoneToken) {
+                      alert("Vui lòng lấy phone token trước!");
+                      return;
+                    }
+
+                    console.log("🎯 Testing with User Token...");
+                    try {
+                      const { ZaloPhoneService } = await import(
+                        "@/services/zalo-phone-clean.service"
+                      );
+                      const result = await ZaloPhoneService.testWithUserToken(
+                        phoneToken
+                      );
+                      console.log("🔍 DEBUG - User token result:", result);
+                      setApiResults((prev) => [
+                        ...prev,
+                        {
+                          type: "user-token-test",
+                          result,
+                        },
+                      ]);
+                    } catch (error) {
+                      console.error("❌ User Token Test Error:", error);
+                    }
+                  }}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 text-sm"
+                >
+                  {loading ? "..." : "🎯 User Token"}
+                </button>
+              </div>
+
+              {/* Row 2: Debug Tools */}
+              <div className="flex gap-2">
+                {/* Component-based Session Debug */}
+                <button
+                  onClick={async () => {
+                    console.log("🕵️‍♂️ Component Session Debug...");
+                    
+                    const sessionInfo: any = {
+                      timestamp: new Date().toISOString(),
+                      userInfo: null,
+                      accessToken: null,
+                      phoneNumber: null,
+                      phoneToken: null,
+                      errors: []
+                    };
+
+                    try {
+                      console.log("\n🕵️‍♂️ === COMPONENT SESSION DEBUG ===");
+                      
+                      // 1. Check ZMP in component context
+                      console.log("🔍 1. ZMP SDK Available:", !!zmp);
+                      console.log("🔍 ZMP Methods:", zmp ? Object.keys(zmp).slice(0, 10) : "No ZMP");
+                      
+                      if (!zmp) {
+                        alert("❌ ZMP SDK not available in component!");
+                        return;
+                      }
+
+                      // 2. Get User Info
+                      try {
+                        console.log("\n🔍 2. Getting User Info...");
+                        const userInfo = await getUserInfo();
+                        console.log("✅ User Info:", userInfo);
+                        sessionInfo.userInfo = userInfo.userInfo || userInfo;
+                      } catch (userError: any) {
+                        console.log("❌ User Info Error:", userError);
+                        sessionInfo.errors.push(`UserInfo: ${userError.message}`);
+                      }
+
+                      // 3. Get Access Token
+                      try {
+                        console.log("\n🔍 3. Getting Access Token...");
+                        const tokenResult = await zmp.getAccessToken();
+                        console.log("✅ Access Token Result:", tokenResult);
+                        sessionInfo.accessToken = (tokenResult as any)?.access_token || (tokenResult as any)?.token || tokenResult;
+                      } catch (tokenError: any) {
+                        console.log("❌ Access Token Error:", tokenError);
+                        sessionInfo.errors.push(`AccessToken: ${tokenError.message}`);
+                      }
+
+                      // 4. Get Phone Number/Token
+                      try {
+                        console.log("\n🔍 4. Getting Phone Number...");
+                        const phoneResult = await zmp.getPhoneNumber();
+                        console.log("✅ Phone Result:", phoneResult);
+                        sessionInfo.phoneNumber = phoneResult?.number;
+                        sessionInfo.phoneToken = phoneResult?.token;
+                      } catch (phoneError: any) {
+                        console.log("❌ Phone Error:", phoneError);
+                        sessionInfo.errors.push(`Phone: ${phoneError.message}`);
+                      }
+
+                      // 5. Summary
+                      console.log("\n📋 === COMPONENT SESSION SUMMARY ===");
+                      console.log("👤 User logged in:", !!sessionInfo.userInfo?.id);
+                      console.log("� Has access token:", !!sessionInfo.accessToken);
+                      console.log("📱 Has phone token:", !!sessionInfo.phoneToken);
+                      console.log("❌ Errors count:", sessionInfo.errors.length);
+                      
+                      // 6. Test User Token API immediately
+                      if (sessionInfo.accessToken && sessionInfo.phoneToken) {
+                        console.log("\n🎯 === IMMEDIATE USER TOKEN API TEST ===");
+                        
+                        const url = "https://graph.zalo.me/v2.0/me/info";
+                        const response = await fetch(url, {
+                          method: "GET",
+                          headers: {
+                            access_token: sessionInfo.accessToken,
+                            code: sessionInfo.phoneToken,
+                            secret_key: import.meta.env.VITE_ZMA_APP_SECRET,
+                          } as HeadersInit,
+                        });
+
+                        console.log("🔍 User Token API Status:", response.status);
+                        const data = await response.json();
+                        console.log("🔍 User Token API Response:", data);
+                        
+                        if (data.error) {
+                          alert(`❌ User Token API Error ${data.error}: ${data.message}`);
+                        } else if (data.phone || data.data?.phone) {
+                          const phone = data.phone || data.data?.phone;
+                          alert(`🎉 SUCCESS! Phone: ${phone}`);
+                          console.log("🎉 PHONE NUMBER DECODED:", phone);
+                          
+                          // Auto-save if phone found
+                          setPhone(phone);
+                          await handleSavePhone(phone);
+                        } else {
+                          alert(`✅ API Success but no phone in response: ${JSON.stringify(data)}`);
+                        }
+                      }
+                      
+                      const hasUser = !!sessionInfo.userInfo?.id;
+                      const hasToken = !!sessionInfo.accessToken;
+                      const hasPhone = !!sessionInfo.phoneToken;
+                      const errorCount = sessionInfo.errors?.length || 0;
+                      
+                      if (errorCount === 0) {
+                        alert(`✅ Component Session OK!\n👤 User: ${hasUser}\n🔑 Token: ${hasToken}\n📱 Phone: ${hasPhone}`);
+                      } else {
+                        alert(`⚠️ Component Session Issues!\n❌ Errors: ${errorCount}\n👤 User: ${hasUser}\n🔑 Token: ${hasToken}\n📱 Phone: ${hasPhone}`);
+                      }
+
+                    } catch (error) {
+                      console.error("❌ Component Session Debug Error:", error);
+                      alert("❌ Component debug failed! Check console");
+                    }
+                  }}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 text-sm"
+                >
+                  {loading ? "..." : "🕵️‍♂️ Component Debug"}
+                </button>
+
+                {/* Force Re-authorize */}
+                <button
+                  onClick={async () => {
+                    console.log("🔄 Force Re-authorization...");
+                    try {
+                      const { ZaloPhoneService } = await import(
+                        "@/services/zalo-phone-clean.service"
+                      );
+                      const result = await ZaloPhoneService.forceReauthorize();
+                      console.log("🔍 DEBUG - Re-auth result:", result);
+                      
+                      if (result.success) {
+                        alert("✅ Re-authorization thành công!");
+                        // Reload page để refresh session
+                        window.location.reload();
+                      } else {
+                        alert(`❌ Re-authorization failed: ${result.error}`);
+                      }
+                    } catch (error) {
+                      console.error("❌ Re-auth Error:", error);
+                      alert("❌ Re-auth failed! Check console");
+                    }
+                  }}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 disabled:opacity-50 text-sm"
+                >
+                  {loading ? "..." : "🔄 Re-auth"}
+                </button>
+
+                <button
+                  onClick={handleTestCORS}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50 text-sm"
+                >
+                  {loading ? "..." : "🌐 CORS"}
+                </button>
+              </div>
+
+              {/* Row 3: Network Debug Tools */}
+              <div className="flex gap-2 mt-2">
+                {/* Copy Curl Command */}
+                <button
+                  onClick={async () => {
+                    if (!phoneToken) {
+                      alert("Vui lòng lấy phone token trước!");
+                      return;
+                    }
+                    
+                    const appId = import.meta.env.VITE_ZMA_APP_ID;
+                    const appSecret = import.meta.env.VITE_ZMA_APP_SECRET;
+                    
+                    const curlCommand = `curl --location --request GET 'https://graph.zalo.me/v2.0/me/info' \\
+--header 'access_token: ${appId}|${appSecret}' \\
+--header 'code: ${phoneToken}' \\
+--header 'secret_key: ${appSecret}'`;
+
+                    try {
+                      await navigator.clipboard.writeText(curlCommand);
+                      alert("✅ Curl command đã copy vào clipboard!\nBạn có thể paste vào terminal để test trực tiếp.");
+                      console.log("📋 Curl command copied:", curlCommand);
+                    } catch (error) {
+                      console.log("📋 Curl command (manual copy):", curlCommand);
+                      alert("❌ Auto-copy failed. Check console để copy manual!");
+                    }
+                  }}
+                  disabled={loading}
+                  className="flex-1 px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 text-sm"
+                >
+                  {loading ? "..." : "📋 Copy Curl"}
+                </button>
+
+                {/* Network Monitor Button */}
+                <button
+                  onClick={() => {
+                    alert(`🌐 Network Monitor Guide:
+
+1. Mở DevTools (F12)
+2. Chọn tab "Network"  
+3. Bấm "Clear" để xóa logs
+4. Tick "Preserve log"
+5. Bấm "🧪 Test API" hoặc button khác
+6. Xem request "graph.zalo.me" xuất hiện
+7. Click vào request để xem:
+   - Headers (access_token, code, secret_key)
+   - Response (error/success)
+   - Timing information
+
+🔍 Tìm request với:
+- URL: graph.zalo.me/v2.0/me/info
+- Method: GET
+- Status: 200, 452, etc.`);
+                  }}
+                  className="flex-1 px-3 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 text-sm"
+                >
+                  🌐 Network Guide
+                </button>
+              </div>
             </div>
           )}
 

@@ -25,6 +25,269 @@ export class ZaloPhoneService {
   }
 
   /**
+   * Test với user access token thay vì app credentials
+   * @param token Phone token từ getPhoneNumber()
+   * @returns Response details hoặc error
+   */
+  static async testWithUserToken(token: string): Promise<any> {
+    console.log("🔍 DEBUG - Testing with user access token from ZMP_TOKEN");
+
+    const zmpToken = import.meta.env.ZMP_TOKEN;
+    const appSecret = import.meta.env.VITE_ZMA_APP_SECRET;
+
+    if (!zmpToken) {
+      console.log("❌ No ZMP_TOKEN found in environment");
+      return { success: false, message: "No ZMP_TOKEN available" };
+    }
+
+    console.log("🔍 DEBUG - ZMP Token:", zmpToken?.substring(0, 20) + "...");
+    console.log("🔍 DEBUG - Phone Token:", token);
+    console.log("🔍 DEBUG - App Secret:", appSecret?.substring(0, 10) + "...");
+
+    const userTokenEndpoints = [
+      {
+        name: "With ZMP_TOKEN as user_access_token",
+        url: "https://graph.zalo.me/v2.0/me/info",
+        method: "GET" as const,
+        headers: {
+          access_token: zmpToken, // User access token from ZMP
+          code: token, // Phone token
+          secret_key: appSecret, // App secret
+        },
+      },
+    ];
+
+    for (const endpoint of userTokenEndpoints) {
+      try {
+        console.log(`
+🔍 DEBUG - Testing: ${endpoint.name}`);
+        console.log(`📍 URL: ${endpoint.url}`);
+        console.log(`📋 Method: ${endpoint.method}`);
+        console.log(`📤 Headers:`, endpoint.headers);
+
+        const response = await fetch(endpoint.url, {
+          method: endpoint.method,
+          headers: endpoint.headers,
+        });
+
+        console.log(`🔍 DEBUG - ${endpoint.name} Status:`, response.status);
+        console.log(
+          `🔍 DEBUG - ${endpoint.name} Status Text:`,
+          response.statusText
+        );
+
+        const responseText = await response.text();
+        console.log(`🔍 DEBUG - ${endpoint.name} Raw Response:`, responseText);
+
+        try {
+          const data = JSON.parse(responseText);
+          console.log(`📋 DEBUG - ${endpoint.name} Parsed Response:`, data);
+
+          if (data.error) {
+            console.log(`❌ API Error ${data.error}: ${data.message}`);
+            return { success: false, endpoint: endpoint.name, error: data };
+          } else {
+            console.log(`✅ SUCCESS - ${endpoint.name} Response:`, data);
+            return { success: true, endpoint: endpoint.name, data };
+          }
+        } catch (e) {
+          console.log(`🔍 DEBUG - Non-JSON response:`, responseText);
+          return {
+            success: false,
+            endpoint: endpoint.name,
+            rawResponse: responseText,
+          };
+        }
+      } catch (fetchError: any) {
+        console.log(`💥 FETCH ERROR - ${endpoint.name}:`, fetchError);
+        console.log(
+          `🔍 DEBUG - Error message:`,
+          fetchError?.message || "Unknown error"
+        );
+      }
+    }
+
+    return { success: false, message: "All user token tests failed" };
+  }
+
+  /**
+   * Test với format chính thức từ Zalo Docs
+   * @param token Phone token từ getPhoneNumber()
+   * @returns Response details hoặc error
+   */
+  static async testOfficialZaloAPI(token: string): Promise<any> {
+    const appId = import.meta.env.VITE_ZMA_APP_ID;
+    const appSecret = import.meta.env.VITE_ZMA_APP_SECRET;
+
+    console.log("🔍 DEBUG - Testing OFFICIAL Zalo API format from docs");
+    console.log("🔍 DEBUG - App ID:", appId);
+    console.log("🔍 DEBUG - App Secret:", appSecret?.substring(0, 10) + "...");
+    console.log("🔍 DEBUG - Phone Token:", token);
+
+    // Format theo docs: https://miniapp.zaloplatforms.com/documents/api/getPhoneNumber/
+    const officialEndpoints = [
+      {
+        name: "Official Zalo Docs Format - me/info",
+        url: "https://graph.zalo.me/v2.0/me/info",
+        method: "GET" as const,
+        headers: {
+          access_token: `${appId}|${appSecret}`, // user_access_token format
+          code: token, // your token (phone token)
+          secret_key: appSecret, // your zalo app secret key
+        },
+      },
+      {
+        name: "Official Zalo Docs Format - me/phone",
+        url: "https://graph.zalo.me/v2.0/me/phone",
+        method: "GET" as const,
+        headers: {
+          access_token: `${appId}|${appSecret}`,
+          code: token,
+          secret_key: appSecret,
+        },
+      },
+    ];
+
+    for (const endpoint of officialEndpoints) {
+      try {
+        console.log(`\n🔍 DEBUG - Testing: ${endpoint.name}`);
+        console.log(`📍 URL: ${endpoint.url}`);
+        console.log(`📋 Method: ${endpoint.method}`);
+        console.log(`📤 Headers:`, endpoint.headers);
+
+        const response = await fetch(endpoint.url, {
+          method: endpoint.method,
+          headers: endpoint.headers,
+        });
+
+        console.log(`🔍 DEBUG - ${endpoint.name} Status:`, response.status);
+        console.log(
+          `🔍 DEBUG - ${endpoint.name} Status Text:`,
+          response.statusText
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`✅ SUCCESS - ${endpoint.name} Response:`, data);
+          return { success: true, endpoint: endpoint.name, data };
+        } else {
+          const errorText = await response.text();
+          console.log(`❌ ERROR - ${endpoint.name} Error Response:`, errorText);
+
+          try {
+            const errorJson = JSON.parse(errorText);
+            console.log(`🔍 DEBUG - ${endpoint.name} Parsed Error:`, errorJson);
+          } catch (e) {
+            console.log(
+              `🔍 DEBUG - ${endpoint.name} Raw Error Text:`,
+              errorText
+            );
+          }
+        }
+      } catch (fetchError: any) {
+        console.log(`💥 FETCH ERROR - ${endpoint.name}:`, fetchError);
+        console.log(
+          `🔍 DEBUG - Error message:`,
+          fetchError?.message || "Unknown error"
+        );
+
+        if (fetchError?.message?.includes("fetch")) {
+          console.log(`🔍 DEBUG - Likely CORS error for ${endpoint.name}`);
+          console.log(`🔍 DEBUG - This is expected in ZMA environment`);
+        }
+      }
+    }
+
+    return { success: false, message: "All official endpoints failed" };
+  }
+
+  /**
+   * Test trực tiếp Zalo Open API để xem response (dù bị CORS)
+   * @param token Phone token từ getPhoneNumber()
+   * @returns Response details hoặc error
+   */
+  static async testZaloOpenAPI(token: string): Promise<any> {
+    const accessToken = this.generateAccessToken();
+    console.log("🔍 DEBUG - Testing direct Zalo Open API call");
+    console.log("🔍 DEBUG - Access Token:", accessToken);
+    console.log("🔍 DEBUG - Phone Token:", token);
+
+    const endpoints = [
+      {
+        name: "OpenAPI v2.0/me/info with phone_token",
+        url: `${this.ZALO_API_BASE}/v2.0/me/info`,
+        payload: { phone_token: token, access_token: accessToken },
+      },
+      {
+        name: "Graph API v2.0/me/phone",
+        url: "https://graph.zalo.me/v2.0/me/phone",
+        payload: { phone_token: token, access_token: accessToken },
+      },
+      {
+        name: "OpenAPI v2.0/me/phone",
+        url: `${this.ZALO_API_BASE}/v2.0/me/phone`,
+        payload: { phone_token: token, access_token: accessToken },
+      },
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`\n🔍 DEBUG - Testing: ${endpoint.name}`);
+        console.log(`🔍 DEBUG - URL: ${endpoint.url}`);
+        console.log(`🔍 DEBUG - Payload:`, endpoint.payload);
+
+        const response = await fetch(endpoint.url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(endpoint.payload),
+        });
+
+        console.log(`🔍 DEBUG - ${endpoint.name} Status:`, response.status);
+        console.log(
+          `🔍 DEBUG - ${endpoint.name} Status Text:`,
+          response.statusText
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`✅ SUCCESS - ${endpoint.name} Response:`, data);
+          return { success: true, endpoint: endpoint.name, data };
+        } else {
+          const errorText = await response.text();
+          console.log(`❌ ERROR - ${endpoint.name} Error Response:`, errorText);
+
+          try {
+            const errorJson = JSON.parse(errorText);
+            console.log(`🔍 DEBUG - ${endpoint.name} Parsed Error:`, errorJson);
+          } catch (e) {
+            console.log(
+              `🔍 DEBUG - ${endpoint.name} Raw Error Text:`,
+              errorText
+            );
+          }
+        }
+      } catch (fetchError: any) {
+        console.log(`💥 FETCH ERROR - ${endpoint.name}:`, fetchError);
+        console.log(
+          `🔍 DEBUG - Error message:`,
+          fetchError?.message || "Unknown error"
+        );
+
+        // Log chi tiết CORS error
+        if (fetchError?.message?.includes("fetch")) {
+          console.log(`🔍 DEBUG - Likely CORS error for ${endpoint.name}`);
+          console.log(`🔍 DEBUG - This is expected in ZMA environment`);
+        }
+      }
+    }
+
+    return { success: false, message: "All endpoints failed" };
+  }
+
+  /**
    * Decode phone token từ Zalo API
    * @param token Token nhận được từ getPhoneNumber()
    * @returns Phone number string hoặc null
@@ -172,6 +435,73 @@ export class ZaloPhoneService {
 
     console.log("🔍 DEBUG - All endpoints failed");
     return null;
+  }
+
+  /**
+   * Test với User Access Token thay vì App Token
+   * @param phoneToken Phone token từ zmp.getPhoneNumber()
+   * @returns Test result
+   */
+  static async testWithUserToken(phoneToken: string): Promise<any> {
+    console.log("🎯 Testing with User Access Token format...");
+
+    try {
+      // Thử lấy user access token từ zmp SDK
+      const zmp = (window as any).zmp;
+      let userToken = null;
+
+      try {
+        const tokenResult = await zmp.getAccessToken();
+        userToken = tokenResult?.access_token || tokenResult?.token;
+        console.log("🔍 DEBUG - User token from zmp:", userToken);
+      } catch (tokenError) {
+        console.log("🔍 DEBUG - Cannot get user token:", tokenError);
+      }
+
+      // Nếu không có user token, thử format khác
+      if (!userToken) {
+        console.log(
+          "🔍 DEBUG - No user token, trying phone token as access token..."
+        );
+        userToken = phoneToken;
+      }
+
+      const url = "https://graph.zalo.me/v2.0/me/info";
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          access_token: userToken,
+          code: phoneToken,
+          secret_key: import.meta.env.VITE_ZMA_APP_SECRET,
+        },
+      });
+
+      console.log("🔍 DEBUG - User Token Test Status:", response.status);
+      console.log(
+        "🔍 DEBUG - User Token Test Status Text:",
+        response.statusText
+      );
+
+      const data = await response.json();
+      console.log("🔍 DEBUG - User Token Test Response:", data);
+
+      return {
+        success: response.ok,
+        endpoint: "User Token Test - me/info",
+        data: data,
+        userToken: userToken,
+        phoneToken: phoneToken,
+      };
+    } catch (error) {
+      console.error("❌ User Token Test Error:", error);
+      return {
+        success: false,
+        endpoint: "User Token Test - me/info",
+        error: error,
+        data: null,
+      };
+    }
   }
 
   /**
