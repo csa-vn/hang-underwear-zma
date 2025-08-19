@@ -128,7 +128,7 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
    */
   static async debugZaloSession(): Promise<any> {
     console.log("\n🕵️‍♂️ === ZALO SESSION DEBUGGER ===");
-    
+
     const sessionInfo: any = {
       timestamp: new Date().toISOString(),
       userInfo: null,
@@ -137,14 +137,14 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       phoneToken: null,
       scopes: null,
       environment: {},
-      errors: []
+      errors: [],
     };
 
     try {
       // 1. Check ZMP SDK availability - multiple methods
       let zmp = (window as any).zmp;
       console.log("🔍 1A. ZMP from window:", !!zmp);
-      
+
       // Try import method if window method fails
       if (!zmp) {
         try {
@@ -157,14 +157,14 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       }
 
       // Try global variable
-      if (!zmp && typeof window !== 'undefined') {
+      if (!zmp && typeof window !== "undefined") {
         console.log("🔍 1C. Checking global variables...");
         zmp = (window as any).ZMP || (window as any).zaloMiniProgram;
         console.log("🔍 1C. ZMP from global:", !!zmp);
       }
-      
+
       console.log("🔍 ZMP Methods:", zmp ? Object.keys(zmp) : "No ZMP");
-      
+
       if (!zmp) {
         sessionInfo.errors.push("ZMP SDK not available via any method");
         console.log("❌ ZMP SDK not found via any method!");
@@ -187,7 +187,8 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
         console.log("\n🔍 3. Getting Access Token...");
         const tokenResult = await zmp.getAccessToken();
         console.log("✅ Access Token Result:", tokenResult);
-        sessionInfo.accessToken = tokenResult?.access_token || tokenResult?.token || tokenResult;
+        sessionInfo.accessToken =
+          tokenResult?.access_token || tokenResult?.token || tokenResult;
       } catch (tokenError: any) {
         console.log("❌ Access Token Error:", tokenError);
         sessionInfo.errors.push(`AccessToken: ${tokenError.message}`);
@@ -224,9 +225,10 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       // 6. Environment Variables
       sessionInfo.environment = {
         APP_ID: import.meta.env.VITE_ZMA_APP_ID,
-        APP_SECRET: import.meta.env.VITE_ZMA_APP_SECRET?.substring(0, 10) + "...",
+        APP_SECRET:
+          import.meta.env.VITE_ZMA_APP_SECRET?.substring(0, 10) + "...",
         ZMP_TOKEN: import.meta.env.ZMP_TOKEN?.substring(0, 20) + "...",
-        OA_ID: import.meta.env.VITE_OFFICIAL_ACCOUNT_ID
+        OA_ID: import.meta.env.VITE_OFFICIAL_ACCOUNT_ID,
       };
       console.log("\n🔍 6. Environment:", sessionInfo.environment);
 
@@ -236,13 +238,12 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       console.log("🔑 Has access token:", !!sessionInfo.accessToken);
       console.log("📱 Has phone token:", !!sessionInfo.phoneToken);
       console.log("❌ Errors count:", sessionInfo.errors.length);
-      
+
       if (sessionInfo.errors.length > 0) {
         console.log("🔍 Errors:", sessionInfo.errors);
       }
 
       return sessionInfo;
-
     } catch (globalError: any) {
       console.log("💥 Global Debug Error:", globalError);
       sessionInfo.errors.push(`Global: ${globalError.message}`);
@@ -256,11 +257,11 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
    */
   static async forceReauthorize(): Promise<any> {
     console.log("\n🔄 === FORCING RE-AUTHORIZATION ===");
-    
+
     try {
       // Try multiple ways to get ZMP SDK
       let zmp = (window as any).zmp;
-      
+
       if (!zmp) {
         try {
           zmp = (await import("zmp-sdk")).default;
@@ -272,9 +273,12 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       }
 
       if (!zmp) {
-        return { success: false, error: "ZMP SDK not available for re-authorization" };
+        return {
+          success: false,
+          error: "ZMP SDK not available for re-authorization",
+        };
       }
-      
+
       // Clear any cached session first
       try {
         if (zmp.clearSession) await zmp.clearSession();
@@ -286,20 +290,19 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       // Force authorization with all required scopes
       const authResult = await zmp.authorize({
         scopes: [
-          "scope.userInfo", 
+          "scope.userInfo",
           "scope.userPhonenumber",
           "scope.userLocation", // Additional scope that might be needed
-        ]
+        ],
       });
-      
+
       console.log("✅ Re-authorization result:", authResult);
-      
+
       // Get fresh user info
       const userInfo = await zmp.getUserInfo();
       console.log("✅ Fresh user info:", userInfo);
-      
+
       return { success: true, authResult, userInfo };
-      
     } catch (error: any) {
       console.log("❌ Re-authorization failed:", error);
       return { success: false, error: error.message };
@@ -317,7 +320,7 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
     try {
       // Try multiple ways to get ZMP SDK
       let zmp = (window as any).zmp;
-      
+
       if (!zmp) {
         try {
           zmp = (await import("zmp-sdk")).default;
@@ -331,9 +334,9 @@ curl --location --request ${endpoint.method} '${endpoint.url}' \\
       if (!zmp) {
         return {
           success: false,
-          endpoint: "User Token Test - me/info", 
+          endpoint: "User Token Test - me/info",
           error: "ZMP SDK not available",
-          data: null
+          data: null,
         };
       }
 

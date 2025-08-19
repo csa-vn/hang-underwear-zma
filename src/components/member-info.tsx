@@ -536,23 +536,26 @@ export default function MemberInfo() {
                 <button
                   onClick={async () => {
                     console.log("🕵️‍♂️ Component Session Debug...");
-                    
+
                     const sessionInfo: any = {
                       timestamp: new Date().toISOString(),
                       userInfo: null,
                       accessToken: null,
                       phoneNumber: null,
                       phoneToken: null,
-                      errors: []
+                      errors: [],
                     };
 
                     try {
                       console.log("\n🕵️‍♂️ === COMPONENT SESSION DEBUG ===");
-                      
+
                       // 1. Check ZMP in component context
                       console.log("🔍 1. ZMP SDK Available:", !!zmp);
-                      console.log("🔍 ZMP Methods:", zmp ? Object.keys(zmp).slice(0, 10) : "No ZMP");
-                      
+                      console.log(
+                        "🔍 ZMP Methods:",
+                        zmp ? Object.keys(zmp).slice(0, 10) : "No ZMP"
+                      );
+
                       if (!zmp) {
                         alert("❌ ZMP SDK not available in component!");
                         return;
@@ -566,7 +569,9 @@ export default function MemberInfo() {
                         sessionInfo.userInfo = userInfo.userInfo || userInfo;
                       } catch (userError: any) {
                         console.log("❌ User Info Error:", userError);
-                        sessionInfo.errors.push(`UserInfo: ${userError.message}`);
+                        sessionInfo.errors.push(
+                          `UserInfo: ${userError.message}`
+                        );
                       }
 
                       // 3. Get Access Token
@@ -574,10 +579,15 @@ export default function MemberInfo() {
                         console.log("\n🔍 3. Getting Access Token...");
                         const tokenResult = await zmp.getAccessToken();
                         console.log("✅ Access Token Result:", tokenResult);
-                        sessionInfo.accessToken = (tokenResult as any)?.access_token || (tokenResult as any)?.token || tokenResult;
+                        sessionInfo.accessToken =
+                          (tokenResult as any)?.access_token ||
+                          (tokenResult as any)?.token ||
+                          tokenResult;
                       } catch (tokenError: any) {
                         console.log("❌ Access Token Error:", tokenError);
-                        sessionInfo.errors.push(`AccessToken: ${tokenError.message}`);
+                        sessionInfo.errors.push(
+                          `AccessToken: ${tokenError.message}`
+                        );
                       }
 
                       // 4. Get Phone Number/Token
@@ -594,15 +604,29 @@ export default function MemberInfo() {
 
                       // 5. Summary
                       console.log("\n📋 === COMPONENT SESSION SUMMARY ===");
-                      console.log("👤 User logged in:", !!sessionInfo.userInfo?.id);
-                      console.log("� Has access token:", !!sessionInfo.accessToken);
-                      console.log("📱 Has phone token:", !!sessionInfo.phoneToken);
-                      console.log("❌ Errors count:", sessionInfo.errors.length);
-                      
+                      console.log(
+                        "👤 User logged in:",
+                        !!sessionInfo.userInfo?.id
+                      );
+                      console.log(
+                        "� Has access token:",
+                        !!sessionInfo.accessToken
+                      );
+                      console.log(
+                        "📱 Has phone token:",
+                        !!sessionInfo.phoneToken
+                      );
+                      console.log(
+                        "❌ Errors count:",
+                        sessionInfo.errors.length
+                      );
+
                       // 6. Test User Token API immediately
                       if (sessionInfo.accessToken && sessionInfo.phoneToken) {
-                        console.log("\n🎯 === IMMEDIATE USER TOKEN API TEST ===");
-                        
+                        console.log(
+                          "\n🎯 === IMMEDIATE USER TOKEN API TEST ==="
+                        );
+
                         const url = "https://graph.zalo.me/v2.0/me/info";
                         const response = await fetch(url, {
                           method: "GET",
@@ -613,36 +637,48 @@ export default function MemberInfo() {
                           } as HeadersInit,
                         });
 
-                        console.log("🔍 User Token API Status:", response.status);
+                        console.log(
+                          "🔍 User Token API Status:",
+                          response.status
+                        );
                         const data = await response.json();
                         console.log("🔍 User Token API Response:", data);
-                        
+
                         if (data.error) {
-                          alert(`❌ User Token API Error ${data.error}: ${data.message}`);
+                          alert(
+                            `❌ User Token API Error ${data.error}: ${data.message}`
+                          );
                         } else if (data.phone || data.data?.phone) {
                           const phone = data.phone || data.data?.phone;
                           alert(`🎉 SUCCESS! Phone: ${phone}`);
                           console.log("🎉 PHONE NUMBER DECODED:", phone);
-                          
+
                           // Auto-save if phone found
                           setPhone(phone);
                           await handleSavePhone(phone);
                         } else {
-                          alert(`✅ API Success but no phone in response: ${JSON.stringify(data)}`);
+                          alert(
+                            `✅ API Success but no phone in response: ${JSON.stringify(
+                              data
+                            )}`
+                          );
                         }
                       }
-                      
+
                       const hasUser = !!sessionInfo.userInfo?.id;
                       const hasToken = !!sessionInfo.accessToken;
                       const hasPhone = !!sessionInfo.phoneToken;
                       const errorCount = sessionInfo.errors?.length || 0;
-                      
-                      if (errorCount === 0) {
-                        alert(`✅ Component Session OK!\n👤 User: ${hasUser}\n🔑 Token: ${hasToken}\n📱 Phone: ${hasPhone}`);
-                      } else {
-                        alert(`⚠️ Component Session Issues!\n❌ Errors: ${errorCount}\n👤 User: ${hasUser}\n🔑 Token: ${hasToken}\n📱 Phone: ${hasPhone}`);
-                      }
 
+                      if (errorCount === 0) {
+                        alert(
+                          `✅ Component Session OK!\n👤 User: ${hasUser}\n🔑 Token: ${hasToken}\n📱 Phone: ${hasPhone}`
+                        );
+                      } else {
+                        alert(
+                          `⚠️ Component Session Issues!\n❌ Errors: ${errorCount}\n👤 User: ${hasUser}\n🔑 Token: ${hasToken}\n📱 Phone: ${hasPhone}`
+                        );
+                      }
                     } catch (error) {
                       console.error("❌ Component Session Debug Error:", error);
                       alert("❌ Component debug failed! Check console");
@@ -664,7 +700,7 @@ export default function MemberInfo() {
                       );
                       const result = await ZaloPhoneService.forceReauthorize();
                       console.log("🔍 DEBUG - Re-auth result:", result);
-                      
+
                       if (result.success) {
                         alert("✅ Re-authorization thành công!");
                         // Reload page để refresh session
@@ -701,10 +737,10 @@ export default function MemberInfo() {
                       alert("Vui lòng lấy phone token trước!");
                       return;
                     }
-                    
+
                     const appId = import.meta.env.VITE_ZMA_APP_ID;
                     const appSecret = import.meta.env.VITE_ZMA_APP_SECRET;
-                    
+
                     const curlCommand = `curl --location --request GET 'https://graph.zalo.me/v2.0/me/info' \\
 --header 'access_token: ${appId}|${appSecret}' \\
 --header 'code: ${phoneToken}' \\
@@ -712,11 +748,18 @@ export default function MemberInfo() {
 
                     try {
                       await navigator.clipboard.writeText(curlCommand);
-                      alert("✅ Curl command đã copy vào clipboard!\nBạn có thể paste vào terminal để test trực tiếp.");
+                      alert(
+                        "✅ Curl command đã copy vào clipboard!\nBạn có thể paste vào terminal để test trực tiếp."
+                      );
                       console.log("📋 Curl command copied:", curlCommand);
                     } catch (error) {
-                      console.log("📋 Curl command (manual copy):", curlCommand);
-                      alert("❌ Auto-copy failed. Check console để copy manual!");
+                      console.log(
+                        "📋 Curl command (manual copy):",
+                        curlCommand
+                      );
+                      alert(
+                        "❌ Auto-copy failed. Check console để copy manual!"
+                      );
                     }
                   }}
                   disabled={loading}
