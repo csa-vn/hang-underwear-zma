@@ -44,8 +44,9 @@ export default function MemberInfo() {
 
   // Kiểm tra Zalo session khi component mount
   const checkZaloSession = async () => {
-    // Nếu đã force logout, không check session nữa
-    if (forceLogout) {
+    // Kiểm tra flag force logout từ localStorage
+    const forceLogoutFlag = localStorage.getItem('zalo_force_logout');
+    if (forceLogoutFlag === 'true' || forceLogout) {
       console.log("🔍 DEBUG - Force logout enabled, skipping session check");
       return;
     }
@@ -95,9 +96,14 @@ export default function MemberInfo() {
     checkZaloSession();
   }, []);
 
-  // Lấy thông tin từ Zalo
+  // Lấy thông tin từ Zalo - ALL IN ONE
   const handleZaloAuthorize = async () => {
     setLoading(true);
+    
+    // Clear logout flag when user wants to reconnect
+    localStorage.removeItem('zalo_force_logout');
+    setForceLogout(false);
+    
     try {
       await authorize({
         scopes: ["scope.userInfo", "scope.userPhonenumber"],
@@ -368,54 +374,118 @@ export default function MemberInfo() {
     }
   };
 
-  // Reset thông tin thành viên để thử ủy quyền lại
+  // Reset thông tin thành viên và clear hoàn toàn Zalo session
   const handleLogout = async () => {
+    setLoading(true);
+    console.log("🚪 LOGOUT - Starting complete Zalo session cleanup...");
+    
     if (memberData?.userId) {
       try {
         // Xóa dữ liệu khỏi Google Sheets (nếu có function này)
-        console.log(
-          "🔍 DEBUG - Attempting to delete member data from sheets for userId:",
-          memberData.userId
-        );
+        console.log("� LOGOUT - Attempting to delete member data from sheets for userId:", memberData.userId);
         // Uncomment if you have delete function:
         // await sheetService.deleteMemberByZaloId(memberData.userId);
-        console.log("🔍 DEBUG - Member data deleted from sheets");
+        console.log("� LOGOUT - Member data deleted from sheets");
       } catch (error) {
-        console.error("🔍 DEBUG - Failed to delete from sheets:", error);
+        console.error("� LOGOUT - Failed to delete from sheets:", error);
       }
     }
 
-    // Clear session storage and local storage
+    // Clear all browser storage
     try {
-      localStorage.clear();
+      console.log("🚪 LOGOUT - Clearing all browser storage...");
+      
+      // Set flag trước khi clear để tránh session tự động load lại
+      localStorage.setItem('zalo_force_logout', 'true');
+      
+      // Clear specific items first but keep the logout flag
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key !== 'zalo_force_logout') {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
       sessionStorage.clear();
-      console.log("🔍 DEBUG - Cleared localStorage and sessionStorage");
-    } catch (error) {
-      console.error("🔍 DEBUG - Failed to clear storage:", error);
-    }
-
-    // Try to clear Zalo SDK session if possible
-    try {
-      const zmpAny = zmp as any;
-      if (zmpAny.clearSession) {
-        await zmpAny.clearSession();
-        console.log("🔍 DEBUG - Cleared Zalo SDK session");
-      } else if (zmpAny.logout) {
-        await zmpAny.logout();
-        console.log("🔍 DEBUG - Logged out from Zalo SDK");
-      } else {
-        console.log("🔍 DEBUG - No clear session method found in Zalo SDK");
-        console.log("🔍 DEBUG - Available zmp methods:", Object.keys(zmp));
+      
+      // Clear IndexedDB if exists
+      if (window.indexedDB) {
+        try {
+          const databases = await indexedDB.databases();
+          for (const db of databases) {
+            if (db.name) {
+              console.log("� LOGOUT - Deleting IndexedDB:", db.name);
+              indexedDB.deleteDatabase(db.name);
+            }
+          }
+        } catch (error) {
+          console.log("🚪 LOGOUT - Could not clear IndexedDB:", error);
+        }
       }
+      
+      console.log("🚪 LOGOUT - All browser storage cleared");
     } catch (error) {
-      console.error("🔍 DEBUG - Failed to clear Zalo session:", error);
+      console.error("� LOGOUT - Failed to clear storage:", error);
     }
 
+    // Try all possible methods to clear Zalo SDK session
+    try {
+      console.log("🚪 LOGOUT - Attempting to clear Zalo SDK session...");
+      const zmpAny = zmp as any;
+      
+      // List all available methods
+      console.log("� LOGOUT - Available zmp methods:", Object.keys(zmp));
+      
+      // Try various logout methods
+      const logoutMethods = ['clearSession', 'logout', 'clearAuth', 'clearUserInfo', 'clearAllData'];
+      
+      for (const method of logoutMethods) {
+        if (zmpAny[method] && typeof zmpAny[method] === 'function') {
+          try {
+            console.log(`🚪 LOGOUT - Trying ${method}...`);
+            await zmpAny[method]();
+            console.log(`� LOGOUT - ${method} successful`);
+          } catch (error) {
+            console.log(`� LOGOUT - ${method} failed:`, error);
+          }
+        }
+      }
+      
+      // Also try to clear any cached data
+      if (zmpAny.clearCache && typeof zmpAny.clearCache === 'function') {
+        try {
+          await zmpAny.clearCache();
+          console.log("🚪 LOGOUT - Zalo cache cleared");
+        } catch (error) {
+          console.log("� LOGOUT - Failed to clear Zalo cache:", error);
+        }
+      }
+      
+    } catch (error) {
+      console.error("� LOGOUT - Failed to clear Zalo session:", error);
+    }
+
+    // Clear all component state
+    console.log("🚪 LOGOUT - Clearing component state...");
     setMemberData(null);
     setShowPhoneForm(false);
     setPhone("");
+    setPhoneToken("");
+    setApiResults([]);
     setForceLogout(true); // Set flag để không tự động load lại session
-    toast.success("Đã đăng xuất thành công!");
+    
+    // Force reload page to ensure complete cleanup
+    const shouldReload = window.confirm("⚠️ Đăng xuất hoàn toàn sẽ:\n• Xóa tất cả dữ liệu Zalo session\n• Ngăn tự động kết nối lại\n• Tải lại trang để đảm bảo session sạch\n\nTiếp tục?");
+    
+    if (shouldReload) {
+      console.log("🚪 LOGOUT - Reloading page for complete cleanup...");
+      window.location.reload();
+    } else {
+      setLoading(false);
+      toast.success("🚪 Đã đăng xuất! Tải lại trang để đảm bảo session sạch hoàn toàn.");
+    }
   };
 
   return (
@@ -801,12 +871,20 @@ export default function MemberInfo() {
             🎉 Bạn đã kết nối Zalo! Nhận thông báo ưu đãi.
           </div>
 
-          {/* Nút đăng xuất để reset thông tin */}
+          {/* Nút đăng xuất hoàn toàn để clear session */}
           <button
             onClick={handleLogout}
-            className="w-full mt-2 px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm"
+            disabled={loading}
+            className="w-full mt-2 px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm disabled:opacity-50 font-medium"
           >
-            🚪 Đăng xuất Zalo
+            {loading ? (
+              <>
+                <div className="w-3 h-3 border border-red-600 border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                Đang đăng xuất...
+              </>
+            ) : (
+              "🚪 Đăng xuất hoàn toàn (Clear Session)"
+            )}
           </button>
         </div>
       ) : (
