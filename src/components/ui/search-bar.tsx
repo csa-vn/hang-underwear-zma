@@ -1,4 +1,4 @@
-import { SearchIcon } from "@/components/vectors";
+import { SearchIcon } from "@/components/common/vectors";
 import { useAtomValue } from "jotai";
 import { productsState } from "@/state";
 import {

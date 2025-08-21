@@ -1,4 +1,4 @@
-import Layout from "@/components/layout";
+import Layout from "@/components/layout/layout";
 import CartPage from "@/pages/cart";
 import ProductListPage from "@/pages/catalog/product-list";
 import CategoryListPage from "@/pages/catalog/category-list";

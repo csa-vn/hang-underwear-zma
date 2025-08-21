@@ -1,5 +1,5 @@
-import Section from "@/components/section";
-import TransitionLink from "@/components/transition-link";
+import Section from "@/components/layout/section";
+import TransitionLink from "@/components/layout/transition-link";
 import { useAtomValue } from "jotai";
 import { productsState } from "@/state";
 

@@ -1,8 +1,8 @@
-import ProductItem from "@/components/product-item";
-import SearchBar from "@/components/search-bar";
-import Section from "@/components/section";
-import { ProductItemSkeleton } from "@/components/skeleton";
-import { SearchIconLarge } from "@/components/vectors";
+import ProductItem from "@/components/product/product-item";
+import SearchBar from "@/components/ui/search-bar";
+import Section from "@/components/layout/section";
+import { ProductItemSkeleton, SelectSkeleton } from "@/components/ui/skeleton";
+import { SearchIconLarge } from "@/components/common/vectors";
 import { useAtom, useAtomValue } from "jotai";
 import { Suspense, useEffect, useRef, useState } from "react";
 import {

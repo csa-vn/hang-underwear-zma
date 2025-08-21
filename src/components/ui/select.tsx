@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { ChevronDown } from "./vectors";
+import { ChevronDown } from "../common/vectors";
 import { Picker } from "zmp-ui";
 
 export interface SelectProps<T> {

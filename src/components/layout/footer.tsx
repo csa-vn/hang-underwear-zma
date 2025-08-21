@@ -1,4 +1,9 @@
-import { CartIcon, CategoryIcon, HomeIcon, ProfileIcon } from "./vectors";
+import {
+  CartIcon,
+  CategoryIcon,
+  HomeIcon,
+  ProfileIcon,
+} from "../common/vectors";
 import HorizontalDivider from "./horizontal-divider";
 import { useAtomValue } from "jotai";
 import { cartState } from "@/state";

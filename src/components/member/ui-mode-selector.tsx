@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 import { setUIModeState, UIMode } from "@/state";
-import Button from "./button";
+import Button from "../ui/button";
 
 interface UIModeModalProps {
   isOpen: boolean;

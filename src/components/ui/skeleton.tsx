@@ -1,8 +1,8 @@
-import Tabs from "./tabs";
-import Section from "./section";
-import HorizontalDivider from "./horizontal-divider";
-import Carousel from "./carousel";
-import { ChevronDown } from "./vectors";
+import Tabs from "../common/tabs";
+import Section from "../layout/section";
+import HorizontalDivider from "../layout/horizontal-divider";
+import Carousel from "../product/carousel";
+import { ChevronDown } from "../common/vectors";
 
 export function PageSkeleton() {
   return (

@@ -1,11 +1,11 @@
-import Checkbox from "@/components/checkbox";
-import QuantityInput from "@/components/quantity-input";
+import Checkbox from "@/components/ui/checkbox";
+import QuantityInput from "@/components/product/quantity-input";
 import { useAddToCart } from "@/hooks";
-import { CartItem as CartItemProps } from "types";
+import { CartItem as CartItemProps } from "../../types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import { RemoveIcon } from "@/components/vectors";
+import { RemoveIcon } from "@/components/common/vectors";
 import { useAtom } from "jotai";
 import { selectedCartItemIdsState } from "@/state";
 import { useEffect, useMemo, useState } from "react";

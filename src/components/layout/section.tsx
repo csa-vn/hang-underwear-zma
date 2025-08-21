@@ -1,5 +1,5 @@
 import { PropsWithChildren, ReactNode } from "react";
-import { ChevronRight } from "./vectors";
+import { ChevronRight } from "../common/vectors";
 import { Link, To } from "react-router-dom";
 import TransitionLink from "./transition-link";
 

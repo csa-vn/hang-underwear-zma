@@ -2,12 +2,12 @@ import { Outlet } from "react-router-dom";
 import Header from "./header";
 import Footer from "./footer";
 import { Suspense, useState, useEffect } from "react";
-import { PageSkeleton } from "./skeleton";
+import { PageSkeleton } from "../ui/skeleton";
 import { Toaster } from "react-hot-toast";
 import { ScrollRestoration } from "./scroll-restoration";
-import { OrderNotificationProvider } from "./order-notification-provider";
-import UIModeModal, { UIModeChangeButton } from "./ui-mode-selector";
-import SimpleProductList from "./simple-product-list";
+import { OrderNotificationProvider } from "../order/order-notification-provider";
+import UIModeModal, { UIModeChangeButton } from "../member/ui-mode-selector";
+import SimpleProductList from "../product/simple-product-list";
 import { useAtomValue } from "jotai";
 import { uiModeState, UIMode } from "@/state";
 

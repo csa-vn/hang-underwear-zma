@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { cartState, selectedCartItemIdsState } from "@/state";
-import { RemoveIcon } from "@/components/vectors";
-import Checkbox from "@/components/checkbox";
+import { RemoveIcon } from "@/components/common/vectors";
+import Checkbox from "@/components/ui/checkbox";
 
 export default function SelectAll() {
   const [cart, setCart] = useAtom(cartState);

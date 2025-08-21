@@ -1,5 +1,5 @@
-import Button from "@/components/button";
-import HorizontalDivider from "@/components/horizontal-divider";
+import Button from "@/components/ui/button";
+import HorizontalDivider from "@/components/layout/horizontal-divider";
 import { useAtomValue } from "jotai";
 import { userState } from "@/state";
 import { sendOANotification } from "@/services/oa.service";

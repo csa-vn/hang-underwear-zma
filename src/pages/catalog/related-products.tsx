@@ -1,4 +1,4 @@
-import ProductGrid from "@/components/product-grid";
+import ProductGrid from "@/components/product/product-grid";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { productsState } from "@/state";

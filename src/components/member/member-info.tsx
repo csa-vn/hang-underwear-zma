@@ -4,7 +4,7 @@ import { useEffect as useUpdateEffect } from "react";
 import zmp from "zmp-sdk";
 import { toast } from "react-hot-toast";
 import { authorize, getUserInfo } from "zmp-sdk";
-import * as sheetService from "../services/sheet.service";
+import * as sheetService from "../../services/sheet.service";
 
 interface MemberData {
   userId: string;

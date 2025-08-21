@@ -1,5 +1,5 @@
-import ProductGrid from "@/components/product-grid";
-import Section from "@/components/section";
+import ProductGrid from "@/components/product/product-grid";
+import Section from "@/components/layout/section";
 import { useAtomValue } from "jotai";
 import { flashSaleProductsState } from "@/state";
 

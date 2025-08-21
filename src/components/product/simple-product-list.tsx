@@ -1,8 +1,8 @@
-import ImageZoomViewer from "@/components/image-zoom-viewer";
+import ImageZoomViewer from "../common/image-zoom-viewer";
 import { useAtomValue } from "jotai";
 import { productsState, uiModeState, userState } from "@/state";
 import { formatPrice } from "@/utils/format";
-import Button from "@/components/button";
+import Button from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { appendContactRow } from "@/services/sheet.service";

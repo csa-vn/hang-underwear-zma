@@ -1,6 +1,6 @@
 import ProductFilter from "./product-filter";
-import HorizontalDivider from "@/components/horizontal-divider";
-import ProductGrid from "@/components/product-grid";
+import HorizontalDivider from "@/components/layout/horizontal-divider";
+import ProductGrid from "@/components/product/product-grid";
 import { useAtomValue } from "jotai";
 import { filteredProductsState } from "@/state";
 

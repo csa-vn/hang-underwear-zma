@@ -2,7 +2,7 @@ import {
   OrderHistoryIcon,
   PackageIcon,
   ProfileIcon,
-} from "@/components/vectors";
+} from "@/components/common/vectors";
 import { useToBeImplemented } from "@/hooks";
 
 export default function ProfileActions() {

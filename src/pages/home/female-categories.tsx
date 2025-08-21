@@ -1,7 +1,7 @@
-import Section from "@/components/section";
+import Section from "@/components/layout/section";
 import { useAtomValue } from "jotai";
 import { productsState } from "@/state";
-import ProductGrid from "@/components/product-grid";
+import ProductGrid from "@/components/product/product-grid";
 
 export default function FemaleCategories() {
   const allProducts = useAtomValue(productsState);

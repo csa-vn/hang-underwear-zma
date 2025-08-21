@@ -1,5 +1,5 @@
-import { Select } from "@/components/lazyloaded";
-import { SelectSkeleton } from "@/components/skeleton";
+import Select from "@/components/ui/select";
+import { SelectSkeleton } from "@/components/ui/skeleton";
 import { useAtom, useAtomValue } from "jotai";
 import { Suspense } from "react";
 import { selectedSizeState, sizesState } from "@/state";

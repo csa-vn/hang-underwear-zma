@@ -7,18 +7,19 @@ import {
 } from "react-router-dom";
 import { categoriesStateUpwrapped, uiModeState, setUIModeState } from "@/state";
 import headerLogoImage from "@/static/logo.jpg";
-import { BackIcon } from "./vectors";
+import { BackIcon } from "../common/vectors";
 import { useMemo, useState } from "react";
 import { useRouteHandle } from "@/hooks";
-import { UIModeChangeButton } from "./ui-mode-selector";
-import UIModeModal from "./ui-mode-selector";
+import { UIModeChangeButton } from "../member/ui-mode-selector";
+import UIModeModal from "../member/ui-mode-selector";
 
 export default function Header() {
   const categories = useAtomValue(categoriesStateUpwrapped);
+  const currentUIMode = useAtomValue(uiModeState);
   const navigate = useNavigate();
   const location = useLocation();
   const [handle, match] = useRouteHandle();
-  const currentUIMode = useAtomValue(uiModeState);
+  // Move this file to: /home/azazel/creation/hang-underwear-zma/src/components/layout/header.tsx
   const [, setUIMode] = useAtom(setUIModeState);
   const [showModeSelector, setShowModeSelector] = useState(false);
 

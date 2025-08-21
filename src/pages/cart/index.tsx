@@ -1,9 +1,9 @@
 import CartList from "./cart-list";
 import CartSummary from "./cart-summary";
-import HorizontalDivider from "@/components/horizontal-divider";
+import HorizontalDivider from "@/components/layout/horizontal-divider";
 import { useAtomValue } from "jotai";
 import { cartState } from "@/state";
-import { EmptyBoxIcon } from "@/components/vectors";
+import { EmptyBoxIcon } from "@/components/common/vectors";
 import SelectAll from "./select-all";
 import { getUserInfo } from "zmp-sdk/apis";
 export default function CartPage() {

@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from "jotai";
-import Tabs from "./tabs";
+import Tabs from "../common/tabs";
 import { selectedTabIndexState, dynamicTabsState } from "@/state";
 
 export default function CategoryTabs() {

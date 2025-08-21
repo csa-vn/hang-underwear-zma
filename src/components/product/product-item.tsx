@@ -1,10 +1,10 @@
 import { Product } from "@/types";
 import { formatPrice } from "@/utils/format";
-import ImageZoomViewer from "@/components/image-zoom-viewer";
-import TransitionLink from "./transition-link";
+import ImageZoomViewer from "../common/image-zoom-viewer";
+import TransitionLink from "../layout/transition-link";
 import { useState } from "react";
-import { useOrderNotification } from "./order-notification-provider";
-import Button from "./button";
+import { useOrderNotification } from "../order/order-notification-provider";
+import Button from "../ui/button";
 import { useAtom } from "jotai";
 import { cartState } from "@/state";
 import { getDefaultOptions } from "@/utils/cart";

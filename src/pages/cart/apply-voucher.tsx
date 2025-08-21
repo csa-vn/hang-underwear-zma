@@ -1,4 +1,4 @@
-import { VoucherIcon, ChevronRight } from "@/components/vectors";
+import { VoucherIcon, ChevronRight } from "@/components/common/vectors";
 import { useToBeImplemented } from "@/hooks";
 
 export default function ApplyVoucher() {

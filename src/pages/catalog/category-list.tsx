@@ -1,6 +1,6 @@
-import CategoryTabs from "@/components/category-tabs";
-import SearchBar from "@/components/search-bar";
-import ProductGrid from "@/components/product-grid";
+import CategoryTabs from "@/components/product/category-tabs";
+import SearchBar from "@/components/ui/search-bar";
+import ProductGrid from "@/components/product/product-grid";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { filteredProductsState } from "@/state";

@@ -1,5 +1,5 @@
-import Button from "@/components/button";
-import { CustomerSupportIcon } from "@/components/vectors";
+import Button from "@/components/ui/button";
+import { CustomerSupportIcon } from "@/components/common/vectors";
 import { useCheckout, useCustomerSupport } from "@/hooks";
 import { useAtomValue } from "jotai";
 import { cartTotalState } from "@/state";

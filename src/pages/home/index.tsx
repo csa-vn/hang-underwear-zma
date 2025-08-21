@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import Banners from "./banners";
-import SearchBar from "../../components/search-bar";
+import SearchBar from "@/components/ui/search-bar";
 import FemaleCategories from "./female-categories";
 import MaleCategories from "./male-categories";
 import ChildrenCategories from "./children-categories";
 import SleepSportCategories from "./sleep-sport-categories";
 import BestSeller from "./best-seller";
-import HorizontalDivider from "@/components/horizontal-divider";
+import HorizontalDivider from "@/components/layout/horizontal-divider";
 
 const HomePage: React.FunctionComponent = () => {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import Carousel from "@/components/carousel";
+import Carousel from "@/components/product/carousel";
 import { useAtomValue } from "jotai";
 import { bannersState } from "@/state";
 
