@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useEffect as useUpdateEffect } from "react";
 // @ts-ignore
 import zmp from "zmp-sdk";
 import { toast } from "react-hot-toast";
@@ -14,13 +15,17 @@ interface MemberData {
   registeredAt?: string;
 }
 
-export default function MemberInfo() {
+export default function MemberInfo({ setMemberData: setMemberDataProp }: { setMemberData?: (data: MemberData | null) => void }) {
   const [loading, setLoading] = useState(false);
   const [memberData, setMemberData] = useState<MemberData | null>(null);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
   const [phone, setPhone] = useState("");
   const [loadingData, setLoadingData] = useState(false);
   const [forceLogout, setForceLogout] = useState(false);
+  // Sync memberData lên prop nếu có
+  useEffect(() => {
+    if (setMemberDataProp) setMemberDataProp(memberData);
+  }, [memberData, setMemberDataProp]);
 
   useEffect(() => {
     // Check if force logout is set in localStorage
@@ -290,9 +295,6 @@ export default function MemberInfo() {
 
       {forceLogout ? (
         <div className="text-center">
-          <div className="text-sm text-gray-600 mb-3">
-            Đã đăng xuất khỏi Zalo
-          </div>
           <button
             onClick={() => {
               // Xóa cờ forceLogout trước khi đăng nhập lại
@@ -371,7 +373,7 @@ export default function MemberInfo() {
             onClick={handleLogout}
             className="w-full mt-2 px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm"
           >
-            Đăng xuất Zalo hoàn toàn
+            Đăng xuất
           </button>
         </div>
       ) : (

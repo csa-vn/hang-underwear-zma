@@ -6,6 +6,7 @@ export default function FollowOAWidget() {
   const [followStatus, setFollowStatus] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const oaId = import.meta.env.VITE_OFFICIAL_ACCOUNT_ID;
 
@@ -15,9 +16,10 @@ export default function FollowOAWidget() {
         const userInfo = await getUserInfo();
         const isFollowed = userInfo?.userInfo?.followedOA || false;
         setFollowStatus(isFollowed);
-
+        setIsLoggedIn(!!userInfo?.userInfo?.id);
         console.log("🔍 DEBUG - OA Follow Status:", isFollowed);
       } catch (error) {
+        setIsLoggedIn(false);
         console.error("Error checking follow status:", error);
         setFollowStatus(false);
       } finally {
@@ -102,15 +104,8 @@ export default function FollowOAWidget() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-          <div className="h-8 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
+  if (loading || !isLoggedIn) {
+    return null;
   }
 
   return (
