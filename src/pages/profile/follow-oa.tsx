@@ -30,7 +30,6 @@ export default function FollowOAWidget() {
     checkFollowStatus();
   }, []);
 
-
   // Handle follow OA
   const handleFollowOA = async () => {
     if (!oaId) {
