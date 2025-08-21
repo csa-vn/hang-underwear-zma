@@ -30,27 +30,6 @@ export default function FollowOAWidget() {
     checkFollowStatus();
   }, []);
 
-  // Show OA Widget as fallback
-  useEffect(() => {
-    if (followStatus === false && oaId) {
-      console.log("🔍 DEBUG - Showing fallback OA Widget for OA ID:", oaId);
-
-      showOAWidget({
-        id: "oaWidget",
-        oaId: oaId,
-        guidingText: "Hoặc nhấn để theo dõi trực tiếp",
-        color: "#10B981",
-        callback: (data: any) => {
-          console.log("🔍 DEBUG - OA Widget callback:", data);
-          if (data.success) {
-            console.log("✅ User đã follow OA qua widget!");
-            setFollowStatus(true);
-            toast.success("🎉 Đã theo dõi OA thành công qua widget!");
-          }
-        },
-      });
-    }
-  }, [followStatus, oaId]);
 
   // Handle follow OA
   const handleFollowOA = async () => {
@@ -158,16 +137,6 @@ export default function FollowOAWidget() {
           )}
         </button>
       </div>
-
-      {/* Fallback OA Widget nếu API không hoạt động */}
-      {!followStatus && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <div className="text-xs text-gray-400 mb-2">
-            Hoặc sử dụng widget Zalo:
-          </div>
-          <div id="oaWidget" className="w-full" />
-        </div>
-      )}
     </div>
   );
 }
