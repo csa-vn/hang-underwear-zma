@@ -5,13 +5,13 @@ import MemberInfo from "@/components/member-info";
 import { useState } from "react";
 
 export default function ProfilePage() {
-  const [memberData, setMemberData] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <div className="min-h-full bg-section p-4 space-y-2.5">
       <Points />
-      <MemberInfo setMemberData={setMemberData} />
+      <MemberInfo setIsLoggedIn={setIsLoggedIn} />
       <ProfileActions />
-      {memberData && <FollowOA memberData={memberData} />}
+      {isLoggedIn && <FollowOA />}
     </div>
   );
 }

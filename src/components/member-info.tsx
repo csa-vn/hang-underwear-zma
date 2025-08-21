@@ -15,7 +15,13 @@ interface MemberData {
   registeredAt?: string;
 }
 
-export default function MemberInfo({ setMemberData: setMemberDataProp }: { setMemberData?: (data: MemberData | null) => void }) {
+export default function MemberInfo({
+  setMemberData: setMemberDataProp,
+  setIsLoggedIn,
+}: {
+  setMemberData?: (data: MemberData | null) => void;
+  setIsLoggedIn?: (v: boolean) => void;
+}) {
   const [loading, setLoading] = useState(false);
   const [memberData, setMemberData] = useState<MemberData | null>(null);
   const [showPhoneForm, setShowPhoneForm] = useState(false);
@@ -26,6 +32,11 @@ export default function MemberInfo({ setMemberData: setMemberDataProp }: { setMe
   useEffect(() => {
     if (setMemberDataProp) setMemberDataProp(memberData);
   }, [memberData, setMemberDataProp]);
+
+  // Sync login state lên ProfilePage
+  useEffect(() => {
+    if (setIsLoggedIn) setIsLoggedIn(!forceLogout && !!memberData?.userId);
+  }, [forceLogout, memberData, setIsLoggedIn]);
 
   useEffect(() => {
     // Check if force logout is set in localStorage
