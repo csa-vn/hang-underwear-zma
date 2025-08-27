@@ -191,9 +191,7 @@ export function useCheckout() {
           productNames
         );
 
-        console.log(
-          "✅ Đã cập nhật điểm và đơn hàng trong sheet Thông tin thành viên"
-        );
+        console.log("✅ [HOOKS] Hoàn tất quá trình tích điểm sau checkout");
       } catch (error) {
         console.warn("⚠️ Cập nhật thông tin thất bại:", error);
         // Không show lỗi cho user, chỉ log

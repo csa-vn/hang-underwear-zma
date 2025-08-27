@@ -386,6 +386,11 @@ export async function savePointsTransaction(
     status: "completed",
   };
 
+  console.log(
+    "📤 PAYLOAD gửi đến Google Apps Script:",
+    JSON.stringify(payload, null, 2)
+  );
+
   try {
     await fetch(MEMBER_WEBHOOK_URL, {
       method: "POST",
