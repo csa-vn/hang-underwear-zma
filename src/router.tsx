@@ -9,6 +9,9 @@ import SearchPage from "@/pages/search";
 import { createBrowserRouter } from "react-router-dom";
 import { getBasePath } from "@/utils/zma";
 import CategoryProductsPage from "@/pages/category-products";
+import MemberRanks from "@/pages/profile/member-ranks";
+import PointsTable from "@/pages/profile/points-table";
+import PointsInfo from "@/pages/profile/points-info";
 
 const router = createBrowserRouter(
   [
@@ -93,6 +96,27 @@ const router = createBrowserRouter(
                 "Sản phẩm"
               );
             },
+          },
+        },
+        {
+          path: "/profile/member-ranks",
+          element: <MemberRanks />,
+          handle: {
+            title: "Hạng Thành Viên",
+          },
+        },
+        {
+          path: "/profile/points-table",
+          element: <PointsTable />,
+          handle: {
+            title: "Bảng Tích Điểm",
+          },
+        },
+        {
+          path: "/profile/points-info",
+          element: <PointsInfo />,
+          handle: {
+            title: "Tích Điểm",
           },
         },
       ],
