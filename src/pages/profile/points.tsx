@@ -9,28 +9,76 @@ export default function Points() {
   const user = useAtomValue(userState);
   const [userPoints, setUserPoints] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [forceLogout, setForceLogout] = useState(
+    () => localStorage.getItem("zalo_force_logout") === "true"
+  );
+
+  // Listen for localStorage changes và custom events
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setForceLogout(localStorage.getItem("zalo_force_logout") === "true");
+    };
+
+    const handleForceLogoutChanged = () => {
+      setForceLogout(localStorage.getItem("zalo_force_logout") === "true");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("forceLogoutChanged", handleForceLogoutChanged);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener(
+        "forceLogoutChanged",
+        handleForceLogoutChanged
+      );
+    };
+  }, []);
 
   // Kiểm tra kỹ hơn: user phải có userInfo và id không rỗng
+  // VÀ không bị force logout
   const isLoggedIn =
-    user && user.userInfo && user.userInfo.id && user.userInfo.id.trim() !== "";
+    !forceLogout &&
+    user &&
+    user.userInfo &&
+    user.userInfo.id &&
+    user.userInfo.id.trim() !== "";
 
   // Load điểm từ Google Sheet khi đã đăng nhập
   useEffect(() => {
+    console.log(
+      "🎯 [Points] isLoggedIn:",
+      isLoggedIn,
+      "forceLogout:",
+      forceLogout,
+      "userId:",
+      user?.userInfo?.id
+    );
+
     if (isLoggedIn && user.userInfo?.id) {
       setLoading(true);
+      console.log("📊 [Points] Loading points for user:", user.userInfo.id);
       getMemberByZaloId(user.userInfo.id)
         .then((memberData) => {
+          console.log("📊 [Points] Member data received:", memberData);
           if (memberData) {
             setUserPoints(memberData.points || 0);
+            console.log("📊 [Points] Set user points:", memberData.points || 0);
           }
           setLoading(false);
         })
         .catch((error) => {
-          console.error("Lỗi khi lấy điểm:", error);
+          console.error("❌ [Points] Lỗi khi lấy điểm:", error);
           setLoading(false);
         });
+    } else {
+      // Clear điểm khi đăng xuất hoặc bị force logout
+      console.log(
+        "🧹 [Points] Clearing points - not logged in or force logout"
+      );
+      setUserPoints(0);
     }
-  }, [isLoggedIn, user?.userInfo?.id]);
+  }, [isLoggedIn, user?.userInfo?.id, forceLogout]);
 
   return (
     <div

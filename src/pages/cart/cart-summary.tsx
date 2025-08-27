@@ -9,7 +9,8 @@ import { formatPrice } from "@/utils/format";
 export default function CartSummary() {
   const { totalItems, totalAmount } = useAtomValue(cartTotalState);
   const contact = useCustomerSupport();
-  const { checkoutState, startCheckout, closePopups } = useCheckout();
+  const { checkoutState, isLoggedIn, startCheckout, closePopups } =
+    useCheckout();
 
   return (
     <>
@@ -26,9 +27,15 @@ export default function CartSummary() {
         <Button
           primary
           onClick={startCheckout}
-          disabled={totalItems === 0 || checkoutState.isProcessing}
+          disabled={
+            totalItems === 0 || checkoutState.isProcessing || !isLoggedIn
+          }
         >
-          {checkoutState.isProcessing ? "Đang xử lý..." : "Mua ngay"}
+          {checkoutState.isProcessing
+            ? "Đang xử lý..."
+            : !isLoggedIn
+            ? "Đăng nhập để mua"
+            : "Mua ngay"}
         </Button>
       </div>
 

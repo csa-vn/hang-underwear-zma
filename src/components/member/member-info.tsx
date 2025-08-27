@@ -262,6 +262,13 @@ export default function MemberInfo({
     try {
       console.log("🚀 Starting Zalo authorization...");
 
+      // Clear force logout flag khi bắt đầu đăng nhập
+      localStorage.removeItem("zalo_force_logout");
+      setForceLogout(false);
+
+      // Trigger custom event để Points component cập nhật
+      window.dispatchEvent(new Event("forceLogoutChanged"));
+
       await authorize({
         scopes: ["scope.userInfo", "scope.userPhonenumber"],
       });
@@ -342,6 +349,7 @@ export default function MemberInfo({
 
     // Clear session data
     setMemberData(null);
+    setUserPoints(0); // Clear điểm số
     setShowPhoneForm(false);
     setPhone("");
     setForceLogout(true);
@@ -376,6 +384,8 @@ export default function MemberInfo({
               // Xóa cờ forceLogout trước khi đăng nhập lại
               localStorage.removeItem("zalo_force_logout");
               setForceLogout(false);
+              // Trigger custom event
+              window.dispatchEvent(new Event("forceLogoutChanged"));
               handleZaloAuthorize();
             }}
             className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 font-medium"

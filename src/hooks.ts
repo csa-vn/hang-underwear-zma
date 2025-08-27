@@ -131,10 +131,9 @@ export function useToBeImplemented() {
 }
 
 export function useCheckout() {
-  const { totalAmount, totalItems } = useAtomValue(cartTotalState);
-  const cart = useAtomValue(cartState);
-  const setCart = useSetAtom(cartState);
   const user = useAtomValue(userState);
+  const [cart, setCart] = useAtom(cartState);
+  const { totalItems, totalAmount } = useAtomValue(cartTotalState);
 
   const [checkoutState, setCheckoutState] = useState<{
     isProcessing: boolean;
@@ -150,9 +149,13 @@ export function useCheckout() {
     errorMessage: "",
   });
 
+  // Check login state với force logout
+  const forceLogout = localStorage.getItem("zalo_force_logout") === "true";
+  const isLoggedIn = !forceLogout && user?.userInfo?.id;
+
   const startCheckout = async () => {
-    // Kiểm tra đăng nhập
-    if (!user?.userInfo?.id) {
+    // Kiểm tra đăng nhập - phải có user VÀ không bị force logout
+    if (!isLoggedIn) {
       toast.error("Vui lòng đăng nhập để đặt hàng!", {
         icon: "🔐",
       });
@@ -254,6 +257,7 @@ export function useCheckout() {
 
   return {
     checkoutState,
+    isLoggedIn,
     startCheckout,
     closePopups,
   };
