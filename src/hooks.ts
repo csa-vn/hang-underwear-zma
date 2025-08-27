@@ -190,33 +190,42 @@ export function useCheckout() {
       const productNames = cart.map((item) => item.product.name).join(", ");
 
       // Lưu thông tin tích điểm và cập nhật thông tin thành viên
-      try {
-        // Chỉ cần gọi một hàm duy nhất - sẽ cập nhật cả điểm và đơn hàng trong sheet thành viên
-        await savePointsTransaction(
-          user.userInfo.id,
-          orderId,
-          totalAmount,
-          pointsEarned,
-          productNames
-        );
+      console.log("🚀 [HOOKS] Bắt đầu lưu thông tin tích điểm...");
 
+      const result = await savePointsTransaction(
+        user.userInfo.id,
+        orderId,
+        totalAmount,
+        pointsEarned,
+        productNames
+      );
+
+      console.log("✅ [HOOKS] Kết quả lưu tích điểm:", result);
+
+      if (result.success) {
         console.log("✅ [HOOKS] Hoàn tất quá trình tích điểm sau checkout");
 
         // Hide loading và show success
+        console.log("🎉 [HOOKS] Đang hiển thị success popup...");
         setCheckoutState((prev) => ({
           ...prev,
           isProcessing: false,
           showSuccess: true,
           pointsEarned,
         }));
-      } catch (error) {
-        console.warn("⚠️ Cập nhật thông tin thất bại:", error);
+
+        console.log("🎉 [HOOKS] Success popup state đã được set!");
+      } else {
+        console.error(
+          "❌ [HOOKS] Lỗi trong quá trình tích điểm:",
+          result.message
+        );
         // Show error popup
         setCheckoutState((prev) => ({
           ...prev,
           isProcessing: false,
           showError: true,
-          errorMessage: "Có lỗi khi lưu thông tin tích điểm",
+          errorMessage: result.message || "Có lỗi khi lưu thông tin tích điểm",
         }));
         return;
       }

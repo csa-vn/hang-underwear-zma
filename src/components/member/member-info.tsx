@@ -15,6 +15,67 @@ interface MemberData {
   registeredAt?: string;
 }
 
+// Helper function để tính hạng thành viên
+const getMemberRank = (points: number) => {
+  if (points >= 500) {
+    return {
+      name: "Kim cương",
+      color: "from-cyan-500 to-blue-600",
+      bgColor: "bg-cyan-50",
+      borderColor: "border-cyan-200",
+      textColor: "text-cyan-700",
+      icon: (
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6,2L18,2L22,8L12,22L2,8L6,2M12,9L7.5,7L9,4L15,4L16.5,7L12,9M8.5,7L12,9L15.5,7L12,16L8.5,7Z" />
+        </svg>
+      ),
+    };
+  } else if (points >= 200) {
+    return {
+      name: "Vàng",
+      color: "from-yellow-400 to-orange-500",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200",
+      textColor: "text-yellow-700",
+      icon: (
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5,16L3,5H21L19,16H5M19,3H5A1,1 0 0,0 4,4V6H20V4A1,1 0 0,0 19,3Z" />
+        </svg>
+      ),
+    };
+  } else if (points >= 100) {
+    return {
+      name: "Bạc",
+      color: "from-gray-400 to-gray-600",
+      bgColor: "bg-gray-50",
+      borderColor: "border-gray-200",
+      textColor: "text-gray-700",
+      icon: (
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5,16L3,5H21L19,16H5M19,3H5A1,1 0 0,0 4,4V6H20V4A1,1 0 0,0 19,3Z" />
+        </svg>
+      ),
+    };
+  } else {
+    return {
+      name: "Chưa xếp hạng",
+      color: "from-gray-300 to-gray-400",
+      bgColor: "bg-gray-50",
+      borderColor: "border-gray-200",
+      textColor: "text-gray-600",
+      icon: (
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ),
+    };
+  }
+};
+
 export default function MemberInfo({
   setMemberData: setMemberDataProp,
   setIsLoggedIn,
@@ -28,6 +89,7 @@ export default function MemberInfo({
   const [phone, setPhone] = useState("");
   const [loadingData, setLoadingData] = useState(false);
   const [forceLogout, setForceLogout] = useState(false);
+  const [userPoints, setUserPoints] = useState(0); // Thêm state cho điểm
   // Sync memberData lên prop nếu có
   useEffect(() => {
     if (setMemberDataProp) setMemberDataProp(memberData);
@@ -53,6 +115,9 @@ export default function MemberInfo({
     try {
       setLoadingData(true);
       const existingMember = await sheetService.getMemberByZaloId(userId);
+      if (existingMember) {
+        setUserPoints(existingMember.points || 0); // Cập nhật điểm
+      }
       return existingMember || null;
     } catch (error) {
       console.error("Failed to load member data from sheets:", error);
@@ -319,73 +384,235 @@ export default function MemberInfo({
           </button>
         </div>
       ) : memberData ? (
-        <div className="space-y-3">
-          {/* Member info - new layout */}
-          <div className="flex flex-col items-center p-4 bg-green-50 rounded-lg border border-green-200">
-            {memberData.avatar && (
-              <img
-                src={memberData.avatar}
-                alt="Avatar"
-                className="w-20 h-20 rounded-full mb-3 border-2 border-green-300 shadow"
-              />
-            )}
-            <div className="w-full max-w-xs">
-              <div className="mb-2">
-                <span className="block text-xs text-gray-500 font-medium mb-1">
-                  Tên thành viên:
-                </span>
-                <span className="block text-base font-semibold text-green-800 bg-white rounded px-2 py-1 border border-green-100">
-                  {memberData.name || "Chưa có"}
-                </span>
+        <div className="space-y-4">
+          {/* Modern Member Profile Card */}
+          <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+            <div className="flex items-center gap-4">
+              {/* Avatar */}
+              <div className="relative">
+                {memberData.avatar ? (
+                  <img
+                    src={memberData.avatar}
+                    alt="Avatar"
+                    className="w-16 h-16 rounded-full border-3 border-white/20 shadow-lg"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center border-3 border-white/20">
+                    <svg
+                      className="w-8 h-8 text-white/80"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                )}
+                {/* Online status badge */}
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 border-2 border-white rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div>
-                <span className="block text-xs text-gray-500 font-medium mb-1">
-                  Số điện thoại:
-                </span>
-                <span className="block text-base font-semibold text-green-800 bg-white rounded px-2 py-1 border border-green-100">
-                  {memberData.phone || "Chưa có"}
-                </span>
+
+              {/* User Info */}
+              <div className="flex-1">
+                <h4 className="text-lg font-bold mb-1">
+                  {memberData.name || "Thành viên Zalo"}
+                </h4>
+                <p className="text-white/80 text-sm">
+                  {memberData.phone || "Chưa cập nhật SĐT"}
+                </p>
+                {memberData.followedOA && (
+                  <div className="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-white/20 rounded-full text-xs">
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Đã theo dõi OA
+                  </div>
+                )}
               </div>
+            </div>
+
+            {/* Decorative pattern */}
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
+              <svg viewBox="0 0 100 100" className="w-full h-full">
+                <circle cx="50" cy="20" r="8" fill="currentColor" />
+                <circle cx="80" cy="50" r="6" fill="currentColor" />
+                <circle cx="30" cy="70" r="4" fill="currentColor" />
+              </svg>
             </div>
           </div>
 
-          {/* Phone form nếu cần */}
-          {showPhoneForm && !memberData.phone && (
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-700 mb-3">
-                Vui lòng nhập số điện thoại để hoàn tất đăng ký:
+          {/* Member Stats Cards */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <svg
+                  className="w-4 h-4 text-emerald-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-emerald-700 font-semibold text-sm">
+                Trạng thái
               </p>
-              <div className="flex gap-2">
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                  placeholder="Nhập số điện thoại"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  maxLength={11}
-                />
+              <p className="text-xs text-emerald-600">Hoạt động</p>
+            </div>
+
+            <div
+              className={`${getMemberRank(userPoints).bgColor} border ${
+                getMemberRank(userPoints).borderColor
+              } rounded-xl p-3 text-center`}
+            >
+              <div
+                className={`w-8 h-8 bg-gradient-to-r ${
+                  getMemberRank(userPoints).color
+                } rounded-full flex items-center justify-center mx-auto mb-2 text-white`}
+              >
+                {getMemberRank(userPoints).icon}
+              </div>
+              <p
+                className={`${
+                  getMemberRank(userPoints).textColor
+                } font-semibold text-sm`}
+              >
+                Hạng
+              </p>
+              <p className={`text-xs ${getMemberRank(userPoints).textColor}`}>
+                {getMemberRank(userPoints).name}
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <svg
+                  className="w-4 h-4 text-blue-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zM8 6v1h4V6a2 2 0 10-4 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <p className="text-blue-700 font-semibold text-sm">Điểm</p>
+              <p className="text-xs text-blue-600">{userPoints || 0}</p>
+            </div>
+          </div>
+
+          {/* Modern Phone Input Form */}
+          {showPhoneForm && !memberData.phone && (
+            <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 rounded-xl p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-6 h-6 text-orange-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">
+                    Hoàn tất đăng ký
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Nhập số điện thoại để nhận ưu đãi
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="relative">
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/\D/g, ""))
+                    }
+                    placeholder="Nhập số điện thoại (VD: 0987654321)"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white/80 backdrop-blur-sm"
+                    maxLength={11}
+                  />
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                    <span className="text-gray-500 text-sm">+84</span>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => handleSavePhone()}
-                  disabled={loading}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+                  disabled={loading || phone.length < 9}
+                  className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 px-4 rounded-xl hover:from-orange-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all duration-200 flex items-center justify-center gap-2"
                 >
-                  {loading ? "..." : "Lưu"}
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Đang lưu...
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Hoàn tất đăng ký
+                    </>
+                  )}
                 </button>
               </div>
             </div>
           )}
 
-          <div className="text-xs text-gray-500 text-center">
-            Bạn đã kết nối Zalo! Nhận thông báo ưu đãi.
-          </div>
+          {/* Status & Actions */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span className="text-sm text-gray-600">Đã kết nối Zalo</span>
+            </div>
 
-          {/* Logout button */}
-          <button
-            onClick={handleLogout}
-            className="w-full mt-2 px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm"
-          >
-            Đăng xuất
-          </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-lg text-sm transition-all duration-200 flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Đăng xuất
+            </button>
+          </div>
         </div>
       ) : (
         <div className="text-center">
