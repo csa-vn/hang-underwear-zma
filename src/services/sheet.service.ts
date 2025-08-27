@@ -2,6 +2,27 @@ const SHEET_ID = "1XSwP-zDZfel_fMKMLlI8eq8oqoEP7Tep2MInPTnWERc";
 const API_KEY =
   import.meta.env.VITE_GOOGLE_SHEET_API || import.meta.env.GOOGLE_SHEET_API;
 
+// Utility function to convert phone number from international format (84) to Vietnam format (0)
+function formatPhoneNumberToVietnam(phone: string): string {
+  if (!phone) return phone;
+
+  // Remove all non-digit characters
+  const cleanPhone = phone.replace(/\D/g, "");
+
+  // If phone starts with 84, replace with 0
+  if (cleanPhone.startsWith("84")) {
+    return "0" + cleanPhone.substring(2);
+  }
+
+  // If phone already starts with 0, keep as is
+  if (cleanPhone.startsWith("0")) {
+    return cleanPhone;
+  }
+
+  // If phone doesn't start with 84 or 0, assume it's missing 0
+  return "0" + cleanPhone;
+}
+
 // Append member info to "Thông tin thành viên" sheet using Google Sheets API
 async function appendToMemberSheet(
   userId: string,
@@ -14,8 +35,12 @@ async function appendToMemberSheet(
     range
   )}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
 
-  // Thêm dấu nháy đơn để giữ số 0 đầu
-  const phoneText = `'${phone}`;
+  // Format phone number to Vietnam format (84 -> 0) and add single quote to preserve leading zero
+  const formattedPhone = formatPhoneNumberToVietnam(phone);
+  const phoneText = `'${formattedPhone}`;
+
+  console.log("📞 Phone conversion:", phone, "->", formattedPhone);
+
   const body = {
     values: [[userId, phoneText, 0, ""]], // UserID, Phone, Điểm = 0, Đơn hàng = rỗng
   };
@@ -57,8 +82,12 @@ async function appendToGoogleSheet(
     range
   )}:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
 
-  // Thêm dấu nháy đơn để giữ số 0 đầu
-  const phoneText = `'${phone}`;
+  // Format phone number to Vietnam format (84 -> 0) and add single quote to preserve leading zero
+  const formattedPhone = formatPhoneNumberToVietnam(phone);
+  const phoneText = `'${formattedPhone}`;
+
+  console.log("📞 Phone conversion:", phone, "->", formattedPhone);
+
   const body = {
     values: [[phoneText, product, timestamp]],
   };
@@ -140,8 +169,11 @@ export async function saveMemberInfo(userId: string, phone: string) {
   const WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
   if (!WEBHOOK_URL) throw new Error("Không tìm thấy webhook thành viên");
 
-  // Thêm dấu nháy đơn để giữ số 0 đầu trong Google Sheet
-  const phoneFormatted = `'${phone}`;
+  // Format phone number to Vietnam format (84 -> 0) and add single quote to preserve leading zero
+  const formattedPhone = formatPhoneNumberToVietnam(phone);
+  const phoneFormatted = `'${formattedPhone}`;
+
+  console.log("📞 Phone conversion:", phone, "->", formattedPhone);
 
   try {
     const response = await fetch(WEBHOOK_URL, {
@@ -178,8 +210,11 @@ export async function appendContactRow(
   });
 
   // Log thông tin để admin có thể theo dõi
-  const phoneText = `'${phone}`;
+  const formattedPhone = formatPhoneNumberToVietnam(phone);
+  const phoneText = `'${formattedPhone}`;
+
   console.log("📞 THÔNG TIN TƯ VẤN MỚI:");
+  console.log("- Phone conversion:", phone, "->", formattedPhone);
   console.log("- Số điện thoại:", phoneText);
   console.log("- Sản phẩm:", product);
   console.log("- Thời gian:", timestamp);
@@ -296,13 +331,17 @@ export async function appendMemberInfo(
   console.log("👤 THÔNG TIN THÀNH VIÊN MỚI:");
   console.log("- User ID:", userId);
   console.log("- Tên:", name);
-  console.log("- Số điện thoại:", `'${phone}`);
+
+  // Format phone number to Vietnam format (84 -> 0)
+  const formattedPhone = formatPhoneNumberToVietnam(phone);
+  console.log("- Phone conversion:", phone, "->", formattedPhone);
+  console.log("- Số điện thoại:", `'${formattedPhone}`);
   console.log("- Avatar:", avatar);
   console.log("- Thời gian:", timestamp);
 
   // Log cho việc copy thủ công - chỉ ID và SĐT
   console.log("📋 Copy dòng này vào Google Sheet (tab Thông tin thành viên):");
-  console.log(`${userId}\t'${phone}`);
+  console.log(`${userId}\t'${formattedPhone}`);
 
   // Sử dụng webhook riêng cho thành viên
   const MEMBER_WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
@@ -315,7 +354,7 @@ export async function appendMemberInfo(
       const payload = {
         userId,
         name,
-        phone: `'${phone}`, // Giữ số 0 đầu
+        phone: `'${formattedPhone}`, // Giữ số 0 đầu
         avatar,
         timestamp,
       };
