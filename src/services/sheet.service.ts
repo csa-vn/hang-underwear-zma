@@ -8,7 +8,7 @@ async function appendToMemberSheet(
   phone: string
 ): Promise<boolean> {
   const SHEET_NAME = "Thông tin thành viên";
-  const range = `${SHEET_NAME}!A:B`; // Chỉ 2 cột: A (UserID), B (Phone)
+  const range = `${SHEET_NAME}!A:D`; // 4 cột: A (UserID), B (Phone), C (Điểm), D (Đơn hàng)
 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(
     range
@@ -17,7 +17,7 @@ async function appendToMemberSheet(
   // Thêm dấu nháy đơn để giữ số 0 đầu
   const phoneText = `'${phone}`;
   const body = {
-    values: [[userId, phoneText]], // Chỉ 2 cột: UserID và Phone
+    values: [[userId, phoneText, 0, ""]], // UserID, Phone, Điểm = 0, Đơn hàng = rỗng
   };
 
   try {
@@ -102,7 +102,7 @@ export async function fetchSheetData() {
 // Lấy thông tin thành viên từ Google Sheets bằng Zalo user ID
 export async function getMemberByZaloId(userId: string) {
   const SHEET_NAME = "Thông tin thành viên";
-  const range = `${SHEET_NAME}!A:B`; // Cột A (UserID), B (Phone)
+  const range = `${SHEET_NAME}!A:D`; // 4 cột: A (UserID), B (Phone), C (Điểm), D (Đơn hàng)
 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(
     range
@@ -120,6 +120,8 @@ export async function getMemberByZaloId(userId: string) {
         return {
           userId: memberRow[0],
           phone: memberRow[1]?.replace("'", "") || "", // Remove leading quote
+          points: parseInt(memberRow[2]) || 0, // Điểm
+          orders: memberRow[3] || "", // Đơn hàng
         };
       }
       return null;
@@ -133,7 +135,7 @@ export async function getMemberByZaloId(userId: string) {
   }
 }
 
-// Lưu thông tin thành viên vào webhook riêng
+// Lưu thông tin thành viên vào webhook riêng - CẬP NHẬT ĐỂ HỖ TRỢ 4 CỘT
 export async function saveMemberInfo(userId: string, phone: string) {
   const WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
   if (!WEBHOOK_URL) throw new Error("Không tìm thấy webhook thành viên");
@@ -145,7 +147,13 @@ export async function saveMemberInfo(userId: string, phone: string) {
     const response = await fetch(WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, phone: phoneFormatted }),
+      body: JSON.stringify({
+        action: "add_new_member",
+        userId,
+        phone: phoneFormatted,
+        points: 0,
+        orders: "",
+      }),
       mode: "no-cors",
     });
     return { success: true, message: "Đăng ký thành viên thành công!" };
@@ -330,3 +338,74 @@ export async function appendMemberInfo(
 
   return false;
 }
+
+// Lưu thông tin tích điểm và cập nhật thông tin thành viên trong một webhook
+export async function savePointsTransaction(
+  userId: string,
+  orderId: string,
+  orderAmount: number,
+  pointsEarned: number,
+  productNames: string
+) {
+  const MEMBER_WEBHOOK_URL = import.meta.env.VITE_MEMBER_WEBHOOK_URL;
+
+  if (!MEMBER_WEBHOOK_URL) {
+    console.warn("⚠️ Không tìm thấy VITE_MEMBER_WEBHOOK_URL");
+    return { success: false, message: "Webhook không được cấu hình" };
+  }
+
+  const timestamp = new Date().toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  console.log("💎 THÔNG TIN TÍCH ĐIỂM:");
+  console.log("- User ID:", userId);
+  console.log("- Order ID:", orderId);
+  console.log(
+    "- Số tiền đơn hàng:",
+    orderAmount.toLocaleString("vi-VN") + " VNĐ"
+  );
+  console.log("- Điểm được cộng:", pointsEarned);
+  console.log("- Sản phẩm:", productNames);
+  console.log("- Thời gian:", timestamp);
+
+  const payload = {
+    action: "update_points_and_orders",
+    userId,
+    orderId,
+    orderAmount,
+    pointsEarned,
+    productNames,
+    timestamp,
+    status: "completed",
+  };
+
+  try {
+    await fetch(MEMBER_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      mode: "no-cors",
+    });
+    console.log(
+      "✅ Đã cập nhật điểm và đơn hàng trong sheet Thông tin thành viên!"
+    );
+    return { success: true, message: "Tích điểm thành công!" };
+  } catch (error: any) {
+    console.error("❌ Lỗi cập nhật thành viên:", error.message);
+    return {
+      success: false,
+      message: "Không thể cập nhật thông tin thành viên",
+    };
+  }
+}
+
+// Xóa hàm updateMemberPointsAndOrders vì không cần thiết nữa
