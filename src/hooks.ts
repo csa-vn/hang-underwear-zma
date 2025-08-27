@@ -136,7 +136,21 @@ export function useCheckout() {
   const setCart = useSetAtom(cartState);
   const user = useAtomValue(userState);
 
-  return async () => {
+  const [checkoutState, setCheckoutState] = useState<{
+    isProcessing: boolean;
+    showSuccess: boolean;
+    showError: boolean;
+    pointsEarned: number;
+    errorMessage: string;
+  }>({
+    isProcessing: false,
+    showSuccess: false,
+    showError: false,
+    pointsEarned: 0,
+    errorMessage: "",
+  });
+
+  const startCheckout = async () => {
     // Kiểm tra đăng nhập
     if (!user?.userInfo?.id) {
       toast.error("Vui lòng đăng nhập để đặt hàng!", {
@@ -152,6 +166,9 @@ export function useCheckout() {
       });
       return;
     }
+
+    // Show loading popup
+    setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
       // Bỏ qua phần thanh toán thực tế vì chúng ta chỉ test hệ thống tích điểm
@@ -172,14 +189,6 @@ export function useCheckout() {
       // Lấy danh sách tên sản phẩm từ giỏ hàng
       const productNames = cart.map((item) => item.product.name).join(", ");
 
-      toast.success(
-        `Thanh toán thành công! Bạn được cộng ${pointsEarned} điểm`,
-        {
-          icon: "🎉",
-          duration: 4000,
-        }
-      );
-
       // Lưu thông tin tích điểm và cập nhật thông tin thành viên
       try {
         // Chỉ cần gọi một hàm duy nhất - sẽ cập nhật cả điểm và đơn hàng trong sheet thành viên
@@ -192,18 +201,52 @@ export function useCheckout() {
         );
 
         console.log("✅ [HOOKS] Hoàn tất quá trình tích điểm sau checkout");
+
+        // Hide loading và show success
+        setCheckoutState((prev) => ({
+          ...prev,
+          isProcessing: false,
+          showSuccess: true,
+          pointsEarned,
+        }));
       } catch (error) {
         console.warn("⚠️ Cập nhật thông tin thất bại:", error);
-        // Không show lỗi cho user, chỉ log
+        // Show error popup
+        setCheckoutState((prev) => ({
+          ...prev,
+          isProcessing: false,
+          showError: true,
+          errorMessage: "Có lỗi khi lưu thông tin tích điểm",
+        }));
+        return;
       }
 
       // Clear giỏ hàng
       setCart([]);
     } catch (error) {
-      // Vì đã bỏ purchase() nên không còn lỗi thanh toán nữa
-      toast.error("Có lỗi xảy ra khi xử lý đơn hàng!");
       console.warn(error);
+      // Show error popup
+      setCheckoutState((prev) => ({
+        ...prev,
+        isProcessing: false,
+        showError: true,
+        errorMessage: "Có lỗi xảy ra khi xử lý đơn hàng!",
+      }));
     }
+  };
+
+  const closePopups = () => {
+    setCheckoutState((prev) => ({
+      ...prev,
+      showSuccess: false,
+      showError: false,
+    }));
+  };
+
+  return {
+    checkoutState,
+    startCheckout,
+    closePopups,
   };
 }
 
